@@ -23,6 +23,8 @@ localhost
 mvn spring-boot:run
 ```
 
+OR
+
 Docker + ECR + Fargate
 
 ```sh
@@ -60,6 +62,8 @@ localhost
 npm i
 ionic serve -p 8081
 ```
+
+OR
 
 mobile
 
