@@ -41,7 +41,7 @@ Dockerrun.aws.json
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "nnnnnnnnn.dkr.ecr.us-east-1.amazonaws.com/zerolb:latest",
+    "Name": "nnnnnnnnn.dkr.ecr.us-east-1.amazonaws.com/wallet:latest",
     "Update": "true"
   },
   "Ports": [
