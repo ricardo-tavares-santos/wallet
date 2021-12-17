@@ -1,0 +1,57 @@
+{
+	"info": {
+		"_postman_id": "1861603f-5e7e-4715-b498-0818965cd6a1",
+		"name": "demo_ricardo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "public",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/public",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"public"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "secret",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJkZDRkYTYzOS1kMzY2LTRkMGItOGE0Zi1hYTVjZjVmMGYwYjgiLCJzdWIiOiJhQGEuY29tIiwiaWF0IjoxNjM2MzAyNjc4LCJleHAiOjE2MzYzNjI2Nzh9.YeNbS438ZSyx2N0HP24xWBwJoMEni4aqOm46gcCR8Joa48lO8klxIvDtruLLVWXdJ7nCOxS-bCxvn-x9XPaoCw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/secret",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"secret"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,124 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <p>Welcome <strong>{{player}}</strong></p>
+    </ion-title>
+    <ion-item *ngIf="!admin">
+      <h1>€ {{totalWallet}} </h1>
+    </ion-item>
+    <ion-item *ngIf="!admin">
+      <p>cashBalance: <strong>€ {{wallet.cashBalance}}</strong></p>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <p>bonusBalance: <strong>€ {{wallet.bonusBalance}}</strong></p>
+    </ion-item>
+    <ion-buttons slot="primary">
+      <ion-button (click)="logout()">
+        <ion-icon name="exit-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" fullscreen>
+
+  <ion-item-group>
+    <ion-button color="success" type="button" (click)="setAddDeposit()"  *ngIf="!admin"> 
+      Deposit
+    </ion-button>  
+    <ion-button color="success" type="button" (click)="setAddWithdraw()" *ngIf="!admin && wallet.cashBalance>0"> 
+      Withdraw
+    </ion-button>  
+    <ion-button color="warning" type="button" (click)="setAddBet()" *ngIf="!admin && totalWallet>0"> 
+      Bet
+    </ion-button>  
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <ion-checkbox (ionChange)="checkValues('WIN')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    &nbsp;
+    <ion-text checked *ngIf="transactionsFull?.length>0">WIN</ion-text>
+    &nbsp;
+    <ion-checkbox (ionChange)="checkValues('BET')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    &nbsp;
+    <ion-text checked *ngIf="transactionsFull?.length>0">BET</ion-text>
+    &nbsp;
+    <ion-checkbox (ionChange)="checkValues('DEPOSIT')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    &nbsp;
+    <ion-text checked *ngIf="transactionsFull?.length>0">DEPOSIT</ion-text>
+    &nbsp;
+    <ion-checkbox (ionChange)="checkValues('WITHDRAW')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    &nbsp;
+    <ion-text checked *ngIf="transactionsFull?.length>0">WITHDRAW</ion-text>
+  </ion-item-group>
+
+  <br>
+
+  <!------------------ Add ------------------>
+
+  <ion-item-group *ngIf="addBet" class="item-group-background-color">
+    <ion-label>Bet</ion-label>
+    <ion-item>
+      <ion-input             
+            type="number"
+            class="form-control"
+            id="amount"
+            required
+            [(ngModel)]="transaction.amount"
+            name="amount"></ion-input>
+    </ion-item>
+    <ion-button color="primary" [disabled]="!transaction.amount>0 || transaction.amount>totalWallet" type="button" (click)="saveBet()">Save</ion-button>
+    <ion-button color="primary" [disabled]="!transaction.amount>0 || transaction.amount>totalWallet" type="button" (click)="saveWinOnline()">Win 100% online</ion-button>
+  </ion-item-group>
+
+  <ion-item-group *ngIf="addDeposit" class="item-group-background-color">
+    <ion-label>Deposit</ion-label>
+    <ion-item>
+      <ion-input             
+            type="number"
+            class="form-control"
+            id="amount"
+            required
+            [(ngModel)]="transaction.amount"
+            name="amount"></ion-input>
+    </ion-item>
+    <ion-button color="primary" [disabled]="!transaction.amount>0" type="button" (click)="saveDeposit()">Save</ion-button>
+  </ion-item-group>
+
+  <ion-item-group *ngIf="addWithdraw" class="item-group-background-color">
+    <ion-label>Withdraw</ion-label>
+    <ion-item>
+      <ion-input             
+            type="number"
+            class="form-control"
+            id="amount"
+            required
+            [(ngModel)]="transaction.amount"
+            name="amount"></ion-input>
+    </ion-item>
+    <ion-button color="primary" [disabled]="!transaction.amount>0 || transaction.amount>wallet.cashBalance" type="button" (click)="saveWithdraw()">Save</ion-button>
+  </ion-item-group>
+
+  <!------------------ List ------------------>
+
+  <ion-item-group *ngIf="transactions?.length>0">
+    <ion-list>
+      <ion-item 
+      class="list-group-item"
+      *ngFor="let t of transactions"
+      >
+      <ion-label style="max-width: 100%">
+        <h2>{{ t.dateTransaction }}</h2>
+        <h3>{{ t.transactionId }}</h3>
+        <p> {{ t.typeTransaction }}</p>
+      </ion-label>
+        <ion-label *ngIf="t.amount>0" style="max-width: 15%"><h2>€ {{ t.amount }}</h2></ion-label>
+        <ion-label style="max-width: 15%">
+          <ion-label *ngIf="t.amount>0"><p>Player ID: {{ t.playerId }}</p></ion-label>
+          <h2 style="color:red;" (click)="saveWinAdmin(t)" *ngIf="admin && t.typeTransaction==='BET' && alreadyWon(t)" >WON!</h2>
+          <ion-button color="primary" [disabled]="" type="button" (click)="saveWinAdmin(t)" *ngIf="admin && t.typeTransaction==='BET' && !alreadyWon(t)" >Win 100%</ion-button>  
+        </ion-label>
+        
+      </ion-item>
+    </ion-list>  
+  </ion-item-group>
+
+</ion-content>

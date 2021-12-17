@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres:10.5
+    environment:
+      - POSTGRES_DB=springlabs
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_INITDB_ARGS=--debug
+    ports:
+      - 5432:5432
+      
