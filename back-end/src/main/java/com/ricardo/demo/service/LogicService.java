@@ -1,6 +1,7 @@
 package com.ricardo.demo.service;
 
 import com.ricardo.demo.dto.TransactionDto;
+import com.ricardo.demo.dto.TransactionListDto;
 import com.ricardo.demo.dto.WalletDto;
 import com.ricardo.demo.model.Transaction;
 import com.ricardo.demo.model.Wallet;
@@ -118,15 +119,15 @@ public class LogicService {
 		return lWalletDto;
 	}
 
-	public TransactionDto convertTransactionDto (Transaction lTransaction) {
-		TransactionDto lTransactiontDto = new TransactionDto();
-		lTransactiontDto.setTransactionId(lTransaction.getTransactionId());
+	public TransactionListDto convertTransactionListDto (Transaction lTransaction) {
+		TransactionListDto lTransactionListDto = new TransactionListDto();
+		lTransactionListDto.setTransactionId(lTransaction.getTransactionId());
 		String dataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lTransaction.getDateTransaction());
-		lTransactiontDto.setDateTransaction(dataFormat);
-		lTransactiontDto.setAmount(lTransaction.getAmount()+"");
-		lTransactiontDto.setPlayerId(lTransaction.getPlayerId()+"");
-		lTransactiontDto.setTypeTransaction(lTransaction.getTypeTransaction().name());
-		return lTransactiontDto;
+		lTransactionListDto.setDateTransaction(dataFormat);
+		lTransactionListDto.setAmount(lTransaction.getAmount()+"");
+		lTransactionListDto.setPlayerId(lTransaction.getPlayerId()+"");
+		lTransactionListDto.setTypeTransaction(lTransaction.getTypeTransaction().name());
+		return lTransactionListDto;
 	}
 
 }

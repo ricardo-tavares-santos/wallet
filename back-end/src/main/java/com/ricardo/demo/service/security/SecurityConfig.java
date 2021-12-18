@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           // services from a browser
           // .httpBasic(Customizer.withDefaults())
           .authorizeRequests(customizer -> {
-            customizer.antMatchers("/signup", "/login", "/public").permitAll(); //???
+            customizer.antMatchers("/signup", "/login", "/public", "/idempotency").permitAll(); //???
             customizer.anyRequest().authenticated();
           })
           .addFilterAfter(new JWTFilter(this.tokenProvider),

@@ -39,4 +39,7 @@ export class WalletService {
     return this.http.get<Transaction[]>(`${baseUrl}/transactions/${Number(playerId)}`);
   }
 
+  getIdempotencyToken(): Observable<any> {
+    return this.http.get(`${baseUrl}/getIdempotencyToken`);
+  }
 }

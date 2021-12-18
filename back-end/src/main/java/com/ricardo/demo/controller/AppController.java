@@ -1,6 +1,8 @@
 package com.ricardo.demo.controller;
 
+import com.ricardo.demo.dto.IdempotencyTokenDto;
 import com.ricardo.demo.dto.TransactionDto;
+import com.ricardo.demo.dto.TransactionListDto;
 import com.ricardo.demo.dto.WalletDto;
 import com.ricardo.demo.model.Player;
 import com.ricardo.demo.model.Transaction;
@@ -9,6 +11,7 @@ import com.ricardo.demo.repository.PlayerRepository;
 import com.ricardo.demo.repository.TransactionRepository;
 import com.ricardo.demo.repository.WalletRepository;
 import com.ricardo.demo.service.LogicService;
+import com.ricardo.demo.service.idempotency.TokenService;
 import com.ricardo.demo.service.security.TokenProvider;
 import com.ricardo.demo.type.TypeTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +50,7 @@ public class AppController {
 	private TokenProvider tokenProvider;
 
 	@Autowired
-	private PasswordEncoder passwordEncoder;	
+	private PasswordEncoder passwordEncoder;
 
 	@GetMapping("/authenticate")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
@@ -157,7 +160,7 @@ public class AppController {
 	}
 
 	@GetMapping("/transactions/{playerId}")
-	public ResponseEntity<List<TransactionDto>> getTransactions(@PathVariable("playerId") long playerId) {
+	public ResponseEntity<List<TransactionListDto>> getTransactions(@PathVariable("playerId") long playerId) {
 		try {
 			List<Transaction> lTransactions = new ArrayList<Transaction>();
 			Sort sort = Sort.by(Sort.Direction.DESC, "dateTransaction");
@@ -170,11 +173,11 @@ public class AppController {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
-			List<TransactionDto> lTransactionsDto = new ArrayList<TransactionDto>();
+			List<TransactionListDto> lTransactionListDto = new ArrayList<TransactionListDto>();
 			for (Transaction t : lTransactions) {
-				lTransactionsDto.add(logicService.convertTransactionDto(t));
+				lTransactionListDto.add(logicService.convertTransactionListDto(t));
 			}
-			return new ResponseEntity<>(lTransactionsDto, HttpStatus.OK);
+			return new ResponseEntity<>(lTransactionListDto, HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println("/transactions : "+e);
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -191,6 +194,27 @@ public class AppController {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 			return new ResponseEntity<>(logicService.convertWalletDto(lWallet), HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println("/balance : "+e);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// ------------- idempotency --------------
+
+	@Autowired
+	private TokenService tokenService;
+
+	@GetMapping("/getIdempotencyToken")
+	public ResponseEntity<IdempotencyTokenDto> getIdempotencyToken() {
+		try {
+			String idempotencyToken = tokenService.createToken();
+			if (idempotencyToken == null || idempotencyToken=="") {
+				return new ResponseEntity<>(HttpStatus.CONFLICT);
+			}
+			IdempotencyTokenDto lIdempotencyTokenDto = new IdempotencyTokenDto();
+			lIdempotencyTokenDto.setIdempotency_Key(idempotencyToken);
+			return new ResponseEntity<>(lIdempotencyTokenDto, HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println("/balance : "+e);
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

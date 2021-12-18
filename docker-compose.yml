@@ -10,4 +10,10 @@ services:
       - POSTGRES_INITDB_ARGS=--debug
     ports:
       - 5432:5432
-      
+
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379      

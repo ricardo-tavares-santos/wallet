@@ -1,7 +1,12 @@
 package com.ricardo.demo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.ricardo.demo.dto.TransactionDto;
 import com.ricardo.demo.model.Player;
 import com.ricardo.demo.repository.PlayerRepository;
+import com.ricardo.demo.service.idempotency.TokenService;
 import com.ricardo.demo.service.security.TokenProvider;
 import org.apache.tomcat.util.http.parser.Authorization;
 import org.junit.jupiter.api.Test;
@@ -62,6 +67,44 @@ class RicardoDemoApplicationTests {
 		users = userRepository.findByEmail(email);
 
 		assertNull(users.size()>0?true:null);
+	}
+
+	@Autowired
+	private TokenService tokenService;
+
+	@Test
+	public void should_Itempotency() throws Exception {
+		String token = tokenService.createToken();
+		assertNotNull(token);
+		TransactionDto lTransactionDto = new TransactionDto();
+		lTransactionDto.setIdempotency_Key(token);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		String requestJson=ow.writeValueAsString(lTransactionDto);
+		mvc.perform(MockMvcRequestBuilders
+				.post("/idempotency")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson)).andExpect(status().isOk());
+		mvc.perform(MockMvcRequestBuilders
+				.post("/idempotency")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson)).andExpect(status().isConflict());
+	}
+
+	@Test
+	public void should_Not_Itempotency() throws Exception {
+		String token = "7777777777777777777777777 because i can ";
+		TransactionDto lTransactionDto = new TransactionDto();
+		lTransactionDto.setIdempotency_Key(token);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		String requestJson=ow.writeValueAsString(lTransactionDto);
+		mvc.perform(MockMvcRequestBuilders
+				.post("/idempotency")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson)).andExpect(status().isConflict());
 	}
 
 }

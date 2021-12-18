@@ -1,6 +1,6 @@
 package com.ricardo.demo.dto;
 
-public class TransactionDto {
+public class TransactionListDto {
     private String transactionId;
     private String playerId;
     private String amount;
@@ -43,7 +43,4 @@ public class TransactionDto {
 
     public void setTypeTransaction(String typeTransaction) {this.typeTransaction = typeTransaction;}
 
-    private String Idempotency_Key;
-    public String getIdempotency_Key() {return Idempotency_Key; }
-    public void setIdempotency_Key(String idempotency_Key) {Idempotency_Key = idempotency_Key;}
 }

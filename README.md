@@ -10,16 +10,20 @@ _Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres_
 
 ./wallet
 ```sh
-docker-compose up -d db
+docker-compose up -d db    (Postgres: App DB)
+docker-compose up -d redis (Redis: Idempotency DB) 
 ```
 
 **Backend:**
+
+```sh
+(Apache Maven) brew install maven
+```
 
 localhost 
 
 ./wallet/back-end
 ```sh
-(Apache Maven) brew install maven
 mvn spring-boot:run
 ```
 
@@ -89,11 +93,20 @@ spring-boot-starter-security
 jjwt
 spring-boot-starter-validation
 spring-boot-devtools
-
+spring-data-redis
+spring-boot-starter-data-redis
 spring-boot-maven-plugin
 ```
 
-![alt text](img/wallet-multi-threaded.png)
+**Idempotency**: The API supports idempotency for safely retrying requests without accidentally performing the same operation twice.
+
+![alt text](img/wallet-itempotent0.png)
+![alt text](img/wallet-itempotent1.png)
+![alt text](img/wallet-itempotent2.png)
+![alt text](img/wallet-itempotent3.png)
+![alt text](img/wallet-itempotent4.png)
+![alt text](img/wallet-itempotent5.png)
+![alt text](img/wallet-itempotent-frontend.png)
 
 Frontend: **Angular** architecture chosen to test build complex enterprise-grade apps like single-page apps and progressive web apps using its model-view-controller capability that augments the functionalities of browser-based applications by reducing the javascript code needed to keep the application functional and robust.
 
@@ -103,7 +116,7 @@ Frontend: **Angular** architecture chosen to test build complex enterprise-grade
 
 **Postgres** adheres more closely to SQL standards and is an object-relational database that includes features like table inheritance unlike MySQL is a purely relational database. With **Hibernate** the column can containing the class name when mapping.
 
-AWS RDS Postgres or **Docker** Postgres
+AWS RDS Postgres or **Docker**
 
 docker-compose.yml
 
@@ -119,7 +132,24 @@ docker-compose.yml
       - 5432:5432
 ```
 
-Hibernate, JPA & JWT
+**Redis** in-memory key–value database to store **Idempotency Key** 
+
+AWS ElastiCache Redis or **Docker**
+
+docker-compose.yml
+
+```sh
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379   
+```
+
+![alt text](img/wallet-redis1.png)
+
+JPA & JWT
 
 application.properties
 
@@ -141,6 +171,8 @@ spring.jpa.hibernate.ddl-auto= update
 app.secret = "ricardo.tavares"
 app.tokenValidityInSeconds = 60000
 
+spring.redis.host = 127.0.0.1
+spring.redis.port = 6379
 ```
 
 ```sh
@@ -253,6 +285,51 @@ With the @SpringBootTest annotation is enough to load the ApplicationContext. Sp
 
 - JUnit5 (Jupiter)
 
+Itempotency Test
+
+```sh
+	@Test
+	public void should_Itempotency() throws Exception {
+		String token = tokenService.createToken();
+		assertNotNull(token);
+		TransactionDto lTransactionDto = new TransactionDto();
+		lTransactionDto.setIdempotency_Key(token);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		String requestJson=ow.writeValueAsString(lTransactionDto);
+		mvc.perform(MockMvcRequestBuilders
+				.post("/idempotency")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson)).andExpect(status().isOk());
+		mvc.perform(MockMvcRequestBuilders
+				.post("/idempotency")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson)).andExpect(status().isConflict());
+	}
+```
+![alt text](img/wallet-test-idempotency1.png)
+
+```sh
+	@Test
+	public void should_Not_Itempotency() throws Exception {
+		String token = "7777777777777777777777777 because i can ";
+		TransactionDto lTransactionDto = new TransactionDto();
+		lTransactionDto.setIdempotency_Key(token);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		String requestJson=ow.writeValueAsString(lTransactionDto);
+		mvc.perform(MockMvcRequestBuilders
+				.post("/idempotency")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson)).andExpect(status().isConflict());
+	}
+```
+![alt text](img/wallet-test-idempotency2.png)
+
+
+
 Unit Tests: covers a single auth class.
 
 ```sh
@@ -362,11 +439,25 @@ public class TestController {
     return "A secret message";
   }
 
+  @PostMapping("/idempotency")
+  public ResponseEntity<IdempotencyDto> checkIdempotency(@RequestBody TransactionDto lTransactionDto) {
+    IdempotencyDto lIdempotencyDto = new IdempotencyDto();
+    String tokenMsg = tokenService.checkToken(lTransactionDto.getIdempotency_Key());
+    lIdempotencyDto.setMsg(tokenMsg);
+    if(tokenMsg=="OK") {
+      return new ResponseEntity<>(lIdempotencyDto, HttpStatus.OK);
+    }
+    return new ResponseEntity<>(lIdempotencyDto, HttpStatus.CONFLICT);
+  }
+
 }
 ```
 
 ## APIs list
 
+```sh
+GET /getIdempotencyToken
+```
 ```sh
 POST /deposit 
 Deposit money to the player’s wallet, awarding him/her a 100% bonus for any deposit greater than €100
