@@ -23,9 +23,6 @@ docker-compose up -d redis
 
 ./wallet/back-end
 ```sh
-brew install maven
-```
-```sh
 mvn spring-boot:run
 ```
 
