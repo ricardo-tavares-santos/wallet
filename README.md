@@ -121,6 +121,18 @@ spring-boot-starter-data-redis
 spring-boot-maven-plugin
 ```
 
+REST Response
+```sh
+ALL HttpStatus.FORBIDDEN (access denied)
+ALL HttpStatus.INTERNAL_SERVER_ERROR (system fails)
+
+POST HttpStatus.CONFLICT (idempotency)
+POST HttpStatus.PRECONDITION_FAILED (business rules)
+POST HttpStatus.CREATED (saved ok)
+
+GET HttpStatus.NO_CONTENT (empty)
+```
+
 **Idempotency**: The API supports idempotency for safely retrying requests without accidentally performing the same operation twice.
 
 ![alt text](img/wallet-itempotent0.png)
