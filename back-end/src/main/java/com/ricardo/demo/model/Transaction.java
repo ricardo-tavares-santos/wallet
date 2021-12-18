@@ -29,7 +29,6 @@ public class Transaction {
     private TypeTransaction typeTransaction;
 
 	public Transaction() {
-
 	}
 
 	public Transaction(long playerId, String transactionId, long amount, Date dateTransaction, TypeTransaction typeTransaction) {

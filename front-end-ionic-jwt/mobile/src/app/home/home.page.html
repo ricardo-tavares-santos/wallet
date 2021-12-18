@@ -149,7 +149,6 @@
           <h2 style="color:red;" (click)="saveWinAdmin(t)" *ngIf="t.typeTransaction==='BET' && alreadyWon(t)" >WON!</h2>
           <ion-button color="primary" [disabled]="" type="button" (click)="saveWinAdmin(t)" *ngIf="admin && t.typeTransaction==='BET' && !alreadyWon(t)" >Win 100%</ion-button>  
         </ion-label>
-        
       </ion-item>
     </ion-list>  
   </ion-item-group>

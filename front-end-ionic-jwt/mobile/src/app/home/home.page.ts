@@ -88,7 +88,6 @@ export class HomePage implements OnInit {
     }
     this.refreshList();
   }
-
   orderBy: any = "dateTransaction";
   pageNo: any;
   pageSize: any = "3";

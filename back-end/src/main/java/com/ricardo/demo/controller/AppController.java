@@ -206,6 +206,7 @@ public class AppController {
 		}
 	}
 
+	
 	@GetMapping("/transactions/{playerId}")
 	public ResponseEntity<List<TransactionListDto>> getTransactions(
 			@PathVariable("playerId") long playerId,
