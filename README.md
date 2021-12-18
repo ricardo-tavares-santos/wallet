@@ -145,6 +145,8 @@ GET HttpStatus.NO_CONTENT (empty)
 **Sorting & Pagination**: The API supports sorting and pagination on the read transactions endpoint.
 
 ```sh
+Service: Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
+
 	@GetMapping("/transactions/{playerId}")
 	public ResponseEntity<List<TransactionListDto>> getTransactions(
 			@PathVariable("playerId") long playerId,
