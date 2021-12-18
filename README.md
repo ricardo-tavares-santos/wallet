@@ -126,6 +126,8 @@ REST Response
 ALL HttpStatus.FORBIDDEN (access denied)
 ALL HttpStatus.INTERNAL_SERVER_ERROR (system fails)
 
+ALL HttpStatus.UNAUTHORIZED (auth)
+
 POST HttpStatus.CONFLICT (idempotency)
 POST HttpStatus.PRECONDITION_FAILED (business rules)
 POST HttpStatus.CREATED (saved ok)
