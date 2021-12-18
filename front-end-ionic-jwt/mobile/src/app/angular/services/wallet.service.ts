@@ -1,6 +1,6 @@
 import { Transaction } from './../models/transaction.model';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Wallet } from '../models/wallet.model';
 import { environment } from 'src/environments/environment';
@@ -35,8 +35,12 @@ export class WalletService {
     return this.http.get(`${baseUrl}/balance/${Number(playerId)}`);
   }
 
-  getTransactions(playerId: any): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(`${baseUrl}/transactions/${Number(playerId)}`);
+  getTransactions(playerId: any, sortBy: any, pageNo: any, pageSize: any): Observable<Transaction[]> {
+    let params = new HttpParams();
+    sortBy ? params = params.append('sortBy', sortBy): ""
+    pageNo ? params = params.append('pageNo', Number(pageNo)): ""
+    pageSize ? params = params.append('pageSize', Number(pageSize)): ""
+    return this.http.get<Transaction[]>(`${baseUrl}/transactions/${Number(playerId)}`, {params: params});
   }
 
   getIdempotencyToken(): Observable<any> {

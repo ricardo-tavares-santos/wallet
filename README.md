@@ -131,6 +131,29 @@ spring-boot-maven-plugin
 ![alt text](img/wallet-itempotent5.png)
 ![alt text](img/wallet-itempotent-frontend.png)
 
+**Sorting & Pagination**: The API supports sorting and pagination on the read transactions endpoint.
+
+```sh
+	@GetMapping("/transactions/{playerId}")
+	public ResponseEntity<List<TransactionListDto>> getTransactions(
+			@PathVariable("playerId") long playerId,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "dateTransaction") String sortBy) {
+		try {
+			List<TransactionListDto> lTransactionListDto = new ArrayList<TransactionListDto>();
+			lTransactionListDto = logicService.findAllTransactions(playerId, pageNo, pageSize, sortBy);
+			if (lTransactionListDto.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+			return new ResponseEntity<>(lTransactionListDto, HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println("/transactions : "+e);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+```
+
 Frontend: **Angular** architecture chosen to test build complex enterprise-grade apps like single-page apps and progressive web apps using its model-view-controller capability that augments the functionalities of browser-based applications by reducing the javascript code needed to keep the application functional and robust.
 
 **Ionic:** Cross-platform mobile app development

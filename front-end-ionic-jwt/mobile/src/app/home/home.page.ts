@@ -89,23 +89,32 @@ export class HomePage implements OnInit {
     this.refreshList();
   }
 
+  orderBy: any = "dateTransaction";
+  pageNo: any;
+  pageSize: any = "3";
+  public optionsFn(): void { 
+    this.retrieveTransactions();
+  }
+  public setMore(): void { 
+    this.pageSize = Number(this.pageSize) + 3;
+    this.retrieveTransactions();
+  }
+
   retrieveTransactions(): void {
     let playerId = "0";
     if (!this.admin) {
       playerId = this.playerId;
     }
-    this.walletService.getTransactions(playerId)
+    this.walletService.getTransactions(playerId, this.orderBy, this.pageNo, this.pageSize)
       .subscribe(
         data => {
           if (data !== null && data.length > 0) {
-            var wn = [{}]; var b = [{}]; var d = [{}]; var w = [{}];
-            if(this.filterWin) wn = data.filter(item => item.typeTransaction === 'WIN');
-            if(this.filterBet) b = data.filter(item => item.typeTransaction === 'BET');
-            if(this.filterDeposit) d = data.filter(item => item.typeTransaction === 'DEPOSIT');
-            if(this.filterWithdraw) w = data.filter(item => item.typeTransaction === 'WITHDRAW');
-            this.transactions = wn.concat(b).concat(d).concat(w);
-            this.transactions = this.transactions.filter(item => item.typeTransaction).sort((b,a) => (a.dateTransaction > b.dateTransaction) ? 1 : ((b.dateTransaction > a.dateTransaction) ? -1 : 0));
-
+            this.transactions = data.filter(item => {
+              if(this.filterWin && item.typeTransaction === 'WIN') return true;
+              if(this.filterBet && item.typeTransaction === 'BET') return true;
+              if(this.filterDeposit && item.typeTransaction === 'DEPOSIT') return true;
+              if(this.filterWithdraw && item.typeTransaction === 'WITHDRAW') return true;
+            });
             this.transactionsFull = data;
           }
         },

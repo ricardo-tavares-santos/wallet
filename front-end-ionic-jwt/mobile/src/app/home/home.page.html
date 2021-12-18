@@ -33,22 +33,6 @@
     <ion-button color="warning" type="button" (click)="setAddBet()" *ngIf="!admin && totalWallet>0"> 
       Bet
     </ion-button>  
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <ion-checkbox (ionChange)="checkValues('WIN')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
-    &nbsp;
-    <ion-text checked *ngIf="transactionsFull?.length>0">WIN</ion-text>
-    &nbsp;
-    <ion-checkbox (ionChange)="checkValues('BET')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
-    &nbsp;
-    <ion-text checked *ngIf="transactionsFull?.length>0">BET</ion-text>
-    &nbsp;
-    <ion-checkbox (ionChange)="checkValues('DEPOSIT')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
-    &nbsp;
-    <ion-text checked *ngIf="transactionsFull?.length>0">DEPOSIT</ion-text>
-    &nbsp;
-    <ion-checkbox (ionChange)="checkValues('WITHDRAW')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
-    &nbsp;
-    <ion-text checked *ngIf="transactionsFull?.length>0">WITHDRAW</ion-text>
   </ion-item-group>
 
   <br>
@@ -100,6 +84,54 @@
 
   <!------------------ List ------------------>
 
+  <ion-item>
+    <ion-checkbox (ionChange)="checkValues('WIN')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    &nbsp;
+    <ion-text checked *ngIf="transactionsFull?.length>0">WIN</ion-text>
+    &nbsp;
+    <ion-checkbox (ionChange)="checkValues('BET')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    &nbsp;
+    <ion-text checked *ngIf="transactionsFull?.length>0">BET</ion-text>
+    &nbsp;
+    <ion-checkbox (ionChange)="checkValues('DEPOSIT')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    &nbsp;
+    <ion-text checked *ngIf="transactionsFull?.length>0">DEPOSIT</ion-text>
+    &nbsp;
+    <ion-checkbox (ionChange)="checkValues('WITHDRAW')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    &nbsp;
+    <ion-text checked *ngIf="transactionsFull?.length>0">WITHDRAW</ion-text>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Order by&nbsp;
+    <ion-select interface="popover" [(ngModel)]="orderBy" (ionChange)="optionsFn();">
+      <ion-select-option value="dateTransaction">Date</ion-select-option>
+      <ion-select-option value="amount">Amount</ion-select-option>
+      <ion-select-option value="typeTransaction">Transaction Type</ion-select-option>
+      <ion-select-option value="transactionId">Transaction Id</ion-select-option>
+      <ion-select-option value="playerId">Player Id</ion-select-option>
+    </ion-select>
+
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Page Size Max:&nbsp;
+    <ion-select interface="popover" [(ngModel)]="pageSize" (ionChange)="optionsFn();">
+      <ion-select-option value="3">3</ion-select-option>
+      <ion-select-option value="5">5</ion-select-option>
+      <ion-select-option [value]=pageSize *ngIf="pageSize!=3 && pageSize!=5 && pageSize!=100000000">{{pageSize}}</ion-select-option>
+      <ion-select-option value="100000000">All</ion-select-option>
+    </ion-select>
+    <!--
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Page No:&nbsp;
+    <ion-select interface="popover" [(ngModel)]="pageNo" (ionChange)="optionsFn();">
+      <ion-select-option value="0">1</ion-select-option>
+      <ion-select-option value="1">2</ion-select-option>
+      <ion-select-option value="2">3</ion-select-option>
+      <ion-select-option value="3">4</ion-select-option>
+      <ion-select-option value="4">5</ion-select-option>
+    </ion-select>
+    -->
+  </ion-item>
+
+
   <ion-item-group *ngIf="transactions?.length>0">
     <ion-list>
       <ion-item 
@@ -122,4 +154,7 @@
     </ion-list>  
   </ion-item-group>
 
+  <section class="full-width">
+    <ion-button expand="full" color="sucess" fill="clear" size="large" (click)="setMore()" >+</ion-button>
+  </section>
 </ion-content>

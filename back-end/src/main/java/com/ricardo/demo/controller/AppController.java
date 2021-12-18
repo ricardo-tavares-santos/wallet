@@ -207,22 +207,16 @@ public class AppController {
 	}
 
 	@GetMapping("/transactions/{playerId}")
-	public ResponseEntity<List<TransactionListDto>> getTransactions(@PathVariable("playerId") long playerId) {
+	public ResponseEntity<List<TransactionListDto>> getTransactions(
+			@PathVariable("playerId") long playerId,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "100") Integer pageSize,
+			@RequestParam(defaultValue = "dateTransaction") String sortBy) {
 		try {
-			List<Transaction> lTransactions = new ArrayList<Transaction>();
-			Sort sort = Sort.by(Sort.Direction.DESC, "dateTransaction");
-			if (playerId == 0)
-				transactionRepository.findAll(sort).forEach(lTransactions::add);
-			else
-				transactionRepository.findByPlayerId(playerId, sort).forEach(lTransactions::add);
-
-			if (lTransactions.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-
 			List<TransactionListDto> lTransactionListDto = new ArrayList<TransactionListDto>();
-			for (Transaction t : lTransactions) {
-				lTransactionListDto.add(logicService.convertTransactionListDto(t));
+			lTransactionListDto = logicService.findAllTransactions(playerId, pageNo, pageSize, sortBy);
+			if (lTransactionListDto.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 			return new ResponseEntity<>(lTransactionListDto, HttpStatus.OK);
 		} catch (Exception e) {

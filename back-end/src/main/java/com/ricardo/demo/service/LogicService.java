@@ -11,12 +11,18 @@ import com.ricardo.demo.repository.WalletRepository;
 import com.ricardo.demo.type.TypeTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @ConfigurationProperties(prefix = "app")
 @Service
@@ -127,6 +133,24 @@ public class LogicService {
 		lTransactionListDto.setAmount(lTransaction.getAmount()+"");
 		lTransactionListDto.setPlayerId(lTransaction.getPlayerId()+"");
 		lTransactionListDto.setTypeTransaction(lTransaction.getTypeTransaction().name());
+		return lTransactionListDto;
+	}
+
+	public List<TransactionListDto> findAllTransactions ( long playerId, Integer pageNo, Integer pageSize, String sortBy) {
+		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
+		List<Transaction> lTransaction = new ArrayList<Transaction>();
+		if (playerId == 0) {
+			Page<Transaction> pagedResult = transactionRepository.findAll(paging);
+			if(pagedResult.hasContent()) {
+				lTransaction = pagedResult.getContent();
+			}
+		} else {
+			lTransaction = transactionRepository.findByPlayerId(playerId, paging);
+		}
+		List<TransactionListDto> lTransactionListDto = new ArrayList<TransactionListDto>();
+		for (Transaction t : lTransaction) {
+			lTransactionListDto.add(convertTransactionListDto(t));
+		}
 		return lTransactionListDto;
 	}
 
