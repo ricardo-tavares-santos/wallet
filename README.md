@@ -1,35 +1,67 @@
 # Demo Wallet
 
-_Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres_
+_Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres/Redis_
 
 ![alt text](img/wallet-geral.png)
 
-## Run
+## Run localhost
 
 **DB:**
 
 ./wallet
+
+Postgres: App DB
 ```sh
-docker-compose up -d db    (Postgres: App DB)
-docker-compose up -d redis (Redis: Idempotency DB) 
+docker-compose up -d db
+```
+Redis: Idempotency DB
+```sh
+docker-compose up -d redis
 ```
 
 **Backend:**
 
-```sh
-(Apache Maven) brew install maven
-```
-
-localhost 
-
 ./wallet/back-end
+```sh
+brew install maven
+```
 ```sh
 mvn spring-boot:run
 ```
 
-OR
+**Frontend:**
 
-Docker + ECR + Fargate
+./wallet/front-end-ionic-jwt/mobile
+```sh
+npm i
+```
+```sh
+ionic serve -p 8081
+```
+
+## Run serverless
+
+**DB:**
+
+AWS RDS Postgres
+```sh
+application.properties
+
+spring.datasource.url = jdbc:postgresql://nnnnnnnnnnn.nnnnnnnn.us-east-1.rds.amazonaws.com:5432/springlabs
+# spring.datasource.url = jdbc:postgresql://localhost:5432/springlabs
+```
+
+AWS Elasticache Redis
+```sh
+application.properties
+
+spring.redis.host = redis-01.nnnnnnnn.nnnn.usw2.cache.amazonaws.com:6379
+# spring.redis.host = 127.0.0.1
+```
+
+**Backend:**
+
+Docker + Amazon Elastic Container Registry (ECR) + AWS Fargate
 
 ```sh
 mvn package && java -jar target/wallet-0.0.1-SNAPSHOT.jar
@@ -59,17 +91,7 @@ Dockerrun.aws.json
 
 **Frontend:**
 
-localhost
-
-./wallet/front-end-ionic-jwt/mobile
-```sh
-npm i
-ionic serve -p 8081
-```
-
-OR
-
-mobile
+Mobile
 
 ```sh
 ionic capacitor build android
@@ -77,6 +99,7 @@ ionic capacitor build ios
 ```
 
 ![alt text](img/wallet-android.png)
+
 
 ## Architecture
 
