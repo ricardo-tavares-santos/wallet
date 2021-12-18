@@ -10,11 +10,11 @@ _Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres/Redis_
 
 ./wallet
 
-Postgres: App DB
+Postgres: App
 ```sh
 docker-compose up -d db
 ```
-Redis: Idempotency DB
+Redis: Idempotency
 ```sh
 docker-compose up -d redis
 ```
