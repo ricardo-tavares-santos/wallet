@@ -8,7 +8,7 @@ _Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres_
 
 **DB:**
 
-(wallet)
+./wallet
 ```sh
 docker-compose up -d db
 ```
@@ -17,11 +17,13 @@ docker-compose up -d db
 
 localhost 
 
-(wallet/back-end)
+./wallet/back-end
 ```sh
 (Apache Maven) brew install maven
 mvn spring-boot:run
 ```
+
+OR
 
 Docker + ECR + Fargate
 
@@ -39,7 +41,7 @@ Dockerrun.aws.json
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "nnnnnnnnn.dkr.ecr.us-east-1.amazonaws.com/zerolb:latest",
+    "Name": "nnnnnnnnn.dkr.ecr.us-east-1.amazonaws.com/wallet:latest",
     "Update": "true"
   },
   "Ports": [
@@ -55,11 +57,13 @@ Dockerrun.aws.json
 
 localhost
 
-(wallet/front-end-ionic-jwt/mobile)
+./wallet/front-end-ionic-jwt/mobile
 ```sh
 npm i
 ionic serve -p 8081
 ```
+
+OR
 
 mobile
 
@@ -73,6 +77,21 @@ ionic capacitor build ios
 ## Architecture
 
 Backend: **Spring boot** Java architecture chosen to test multi-threading implementation of large-scale projects that several tasks can be performed concurrently to a lot of simultaneous work.
+
+pom.xml artifacts
+```sh
+spring-boot-starter
+spring-boot-starter-test
+spring-boot-starter-data-jpa
+postgresql
+spring-boot-starter-web
+spring-boot-starter-security
+jjwt
+spring-boot-starter-validation
+spring-boot-devtools
+
+spring-boot-maven-plugin
+```
 
 ![alt text](img/wallet-multi-threaded.png)
 
@@ -141,7 +160,7 @@ public class Player {
 	@Column(name = "password")
 	private String password;
 
-    @Column(name = "admin")
+        @Column(name = "admin")
 	private boolean admin;
 ```
 
@@ -153,7 +172,7 @@ public class Wallet {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-    @Column(name = "playerId")
+        @Column(name = "playerId")
 	private long playerId;
 
 	@Column(name = "cashBalance")
@@ -171,7 +190,7 @@ public class Transaction {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-    @Column(name = "playerId")
+        @Column(name = "playerId")
 	private long playerId;
 
 	@Column(name = "transactionId")
@@ -183,9 +202,19 @@ public class Transaction {
 	@Column(name = "dateTransaction")
 	private Date dateTransaction;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "typeTransaction")
-    private TypeTransaction typeTransaction;
+        @Enumerated(EnumType.STRING)
+        @Column(name = "typeTransaction")
+        private TypeTransaction typeTransaction;
+```
+
+@Enumerated
+```sh
+public enum TypeTransaction {
+	WIN,
+	BET,
+        DEPOSIT,
+        WITHDRAW;
+}
 ```
 
 ![alt text](img/wallet-pgadmin.png)
@@ -195,7 +224,7 @@ public class Transaction {
 JWT Authentication, Spring Boot Maven (Security, Web, Data, JPA & Hibernate) + PostgreSQL
 
 ```sh
-Apache Maven: brew install maven
+(Apache Maven) brew install maven
 mvn spring-boot:run
 ```
 
