@@ -113,7 +113,7 @@
         <ion-label *ngIf="t.amount>0" style="max-width: 15%"><h2>€ {{ t.amount }}</h2></ion-label>
         <ion-label style="max-width: 15%">
           <ion-label *ngIf="t.amount>0"><p>Player ID: {{ t.playerId }}</p></ion-label>
-          <h2 style="color:red;" (click)="saveWinAdmin(t)" *ngIf="admin && t.typeTransaction==='BET' && alreadyWon(t)" >WON!</h2>
+          <h2 style="color:red;" (click)="saveWinAdmin(t)" *ngIf="t.typeTransaction==='BET' && alreadyWon(t)" >WON!</h2>
           <ion-button color="primary" [disabled]="" type="button" (click)="saveWinAdmin(t)" *ngIf="admin && t.typeTransaction==='BET' && !alreadyWon(t)" >Win 100%</ion-button>  
         </ion-label>
         
