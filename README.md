@@ -132,7 +132,11 @@ POST HttpStatus.CREATED (saved ok)
 GET  HttpStatus.NO_CONTENT (empty)
 ```
 
-**Idempotency**: The API supports idempotency for safely retrying requests without accidentally performing the same operation twice.
+**Security**: The APP protect the wallet using JWT mechanism
+
+![alt text](img/wallet-sec.png)
+
+**Idempotency**: The APP supports idempotency for safely retrying requests without accidentally performing the same operation twice.
 
 ![alt text](img/wallet-itempotent0.png)
 ![alt text](img/wallet-itempotent1.png)
@@ -142,7 +146,7 @@ GET  HttpStatus.NO_CONTENT (empty)
 ![alt text](img/wallet-itempotent5.png)
 ![alt text](img/wallet-itempotent-frontend.png)
 
-**Sorting & Pagination**: The API supports sorting and pagination on the read transactions endpoint.
+**Sorting & Pagination**: The APP supports sorting and pagination on the read transactions endpoint.
 
 ```sh
 Service: Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
