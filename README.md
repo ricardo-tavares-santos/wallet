@@ -10,11 +10,11 @@ _Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres/Redis_
 
 ./wallet
 
-Postgres: App DB
+Postgres: App
 ```sh
 docker-compose up -d db
 ```
-Redis: Idempotency DB
+Redis: Idempotency
 ```sh
 docker-compose up -d redis
 ```
@@ -22,9 +22,6 @@ docker-compose up -d redis
 **Backend:**
 
 ./wallet/back-end
-```sh
-brew install maven
-```
 ```sh
 mvn spring-boot:run
 ```
@@ -126,6 +123,8 @@ REST Response
 ALL HttpStatus.FORBIDDEN (access denied)
 ALL HttpStatus.INTERNAL_SERVER_ERROR (system fails)
 
+ALL HttpStatus.UNAUTHORIZED (auth)
+
 POST HttpStatus.CONFLICT (idempotency)
 POST HttpStatus.PRECONDITION_FAILED (business rules)
 POST HttpStatus.CREATED (saved ok)
@@ -146,6 +145,9 @@ GET HttpStatus.NO_CONTENT (empty)
 **Sorting & Pagination**: The API supports sorting and pagination on the read transactions endpoint.
 
 ```sh
+Service: Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
+Repository: List<Transaction> findByPlayerId(long playerId, Pageable pageable);
+Controller:
 	@GetMapping("/transactions/{playerId}")
 	public ResponseEntity<List<TransactionListDto>> getTransactions(
 			@PathVariable("playerId") long playerId,
