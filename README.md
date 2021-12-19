@@ -27,7 +27,6 @@ mvn spring-boot:run
 ```
 
 **Frontend:**
-
 ./wallet/front-end-ionic-jwt/mobile
 ```sh
 npm i
@@ -35,6 +34,7 @@ npm i
 ```sh
 ionic serve -p 8081
 ```
+if necessary: npm install -g ionic
 
 ## Run serverless
 
