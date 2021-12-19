@@ -136,13 +136,7 @@ GET HttpStatus.NO_CONTENT (empty)
 
 **Idempotency**: The API supports idempotency for safely retrying requests without accidentally performing the same operation twice.
 
-![alt text](img/wallet-itempotent0.png)
-![alt text](img/wallet-itempotent1.png)
-![alt text](img/wallet-itempotent2.png)
-![alt text](img/wallet-itempotent3.png)
-![alt text](img/wallet-itempotent4.png)
-![alt text](img/wallet-itempotent5.png)
-![alt text](img/wallet-itempotent-frontend.png)
+
 
 **Sorting & Pagination**: The API supports sorting and pagination on the read transactions endpoint.
 
