@@ -4,7 +4,7 @@ _Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres/Redis_
 
 ![alt text](img/wallet-geral.png)
 
-## Run localhost
+## Run: localhost (desenv)
 
 **DB:**
 
@@ -36,7 +36,7 @@ ionic serve -p 8081
 ```
 if necessary: npm install -g ionic
 
-## Run serverless
+## Run: serverless (prod)
 
 **DB:**
 
