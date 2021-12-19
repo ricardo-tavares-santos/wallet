@@ -37,6 +37,8 @@ ionic serve -p 8081
 ```
 if necessary: npm install -g ionic
 
+![alt text](img/wallet-system.png)
+
 ## Run: serverless (prod)
 
 **DB:**
