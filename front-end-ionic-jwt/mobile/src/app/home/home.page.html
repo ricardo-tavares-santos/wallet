@@ -110,6 +110,10 @@
       <ion-select-option value="playerId">Player Id</ion-select-option>
     </ion-select>
 
+
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Page Size Max:&nbsp;{{pageSize}}
+    <!--
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     Page Size Max:&nbsp;
     <ion-select interface="popover" [(ngModel)]="pageSize" (ionChange)="optionsFn();">
@@ -118,7 +122,7 @@
       <ion-select-option [value]=pageSize *ngIf="pageSize!=3 && pageSize!=5 && pageSize!=100000000">{{pageSize}}</ion-select-option>
       <ion-select-option value="100000000">All</ion-select-option>
     </ion-select>
-    <!--
+    
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     Page No:&nbsp;
     <ion-select interface="popover" [(ngModel)]="pageNo" (ionChange)="optionsFn();">
@@ -154,6 +158,6 @@
   </ion-item-group>
 
   <section class="full-width">
-    <ion-button expand="full" color="sucess" fill="clear" size="large" (click)="setMore()" >+</ion-button>
+    <ion-button expand="block" color="warning" fill="outline" (click)="setMore()" *ngIf="pageSizeTotal>pageSize" >+</ion-button>
   </section>
 </ion-content>

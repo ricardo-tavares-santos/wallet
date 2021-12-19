@@ -91,11 +91,12 @@ export class HomePage implements OnInit {
   orderBy: any = "dateTransaction";
   pageNo: any;
   pageSize: any = "3";
+  pageSizeTotal: any = "0";
   public optionsFn(): void { 
     this.retrieveTransactions();
   }
   public setMore(): void { 
-    this.pageSize = Number(this.pageSize) + 3;
+    this.pageSize = Number(this.pageSize) + 10;
     this.retrieveTransactions();
   }
 
