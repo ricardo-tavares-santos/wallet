@@ -42,8 +42,4 @@ public class TransactionDto {
     public String getTypeTransaction() {return typeTransaction; }
 
     public void setTypeTransaction(String typeTransaction) {this.typeTransaction = typeTransaction;}
-
-    private String Idempotency_Key;
-    public String getIdempotency_Key() {return Idempotency_Key; }
-    public void setIdempotency_Key(String idempotency_Key) {Idempotency_Key = idempotency_Key;}
 }

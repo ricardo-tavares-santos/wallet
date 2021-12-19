@@ -1,13 +1,13 @@
 package com.ricardo.demo.model;
 
 import javax.persistence.*;
-import com.ricardo.demo.type.TypeTransaction;
+import com.ricardo.demo.type.TransactionType;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "transaction")
-public class Transaction {
+public class TransactionEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
@@ -26,12 +26,12 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "typeTransaction")
-    private TypeTransaction typeTransaction;
+    private TransactionType typeTransaction;
 
-	public Transaction() {
+	public TransactionEntity() {
 	}
 
-	public Transaction(long playerId, String transactionId, long amount, Date dateTransaction, TypeTransaction typeTransaction) {
+	public TransactionEntity(long playerId, String transactionId, long amount, Date dateTransaction, TransactionType typeTransaction) {
 		this.playerId = playerId;
 		this.transactionId = transactionId;
 		this.amount = amount;
@@ -72,10 +72,10 @@ public class Transaction {
 		this.dateTransaction = dateTransaction;
 	}
 
-	public TypeTransaction getTypeTransaction() {
+	public TransactionType getTypeTransaction() {
 		return typeTransaction;
 	}
-	public void setTypeTransaction(TypeTransaction typeTransaction) {
+	public void setTypeTransaction(TransactionType typeTransaction) {
 		this.typeTransaction = typeTransaction;
 	}
 

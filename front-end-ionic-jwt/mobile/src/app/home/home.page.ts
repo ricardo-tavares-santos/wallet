@@ -1,3 +1,4 @@
+import { SaveTransaction } from './../angular/models/saveTransaction.model';
 import {Component, OnInit} from '@angular/core'; 
 import {HttpClient} from '@angular/common/http';
 import {AuthService} from '../auth.service';
@@ -42,6 +43,10 @@ export class HomePage implements OnInit {
     transactionId: '',
     amount: 0,
     typeTransaction: '',
+  };
+  saveTransaction: SaveTransaction = {
+    idempotency_Key: '',
+    data: this.transaction,
   };
 
   totalWallet: number = 0;
@@ -90,8 +95,9 @@ export class HomePage implements OnInit {
   }
   orderBy: any = "dateTransaction";
   pageNo: any;
-  pageSize: any = "3";
+  pageSize: any = "2";
   pageSizeTotal: any = "0";
+  pageNoTotal: any = "0";
   public optionsFn(): void { 
     this.retrieveTransactions();
   }
@@ -108,14 +114,16 @@ export class HomePage implements OnInit {
     this.walletService.getTransactions(playerId, this.orderBy, this.pageNo, this.pageSize)
       .subscribe(
         data => {
-          if (data !== null && data.length > 0) {
-            this.transactions = data.filter(item => {
+          this.pageSizeTotal = data?.pageSizeTotal;
+          this.pageNoTotal = data?.pageNoTotal;
+          if (data?.data !== null && data?.data.length > 0) {
+            this.transactions = data?.data.filter(item => {
               if(this.filterWin && item.typeTransaction === 'WIN') return true;
               if(this.filterBet && item.typeTransaction === 'BET') return true;
               if(this.filterDeposit && item.typeTransaction === 'DEPOSIT') return true;
               if(this.filterWithdraw && item.typeTransaction === 'WITHDRAW') return true;
             });
-            this.transactionsFull = data;
+            this.transactionsFull = data?.data;
           }
         },
         error => {
@@ -171,8 +179,9 @@ export class HomePage implements OnInit {
     this.walletService.getIdempotencyToken().subscribe(
       responseToken => {
         console.log(responseToken);
-        this.transaction.idempotency_Key = responseToken.idempotency_Key;
-        this.walletService.createWithdraw(this.transaction).subscribe(
+        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+        this.saveTransaction.data = this.transaction;
+        this.walletService.createWithdraw(this.saveTransaction).subscribe(
           response => {
             console.log(response);
             this.refreshList();
@@ -193,8 +202,9 @@ export class HomePage implements OnInit {
     this.walletService.getIdempotencyToken().subscribe(
       responseToken => {
         console.log(responseToken);
-        this.transaction.idempotency_Key = responseToken.idempotency_Key;
-        this.walletService.createDeposit(this.transaction).subscribe(
+        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+        this.saveTransaction.data = this.transaction;
+        this.walletService.createDeposit(this.saveTransaction).subscribe(
           response => {
             console.log(response);
             this.refreshList();
@@ -215,8 +225,9 @@ export class HomePage implements OnInit {
     this.walletService.getIdempotencyToken().subscribe(
       responseToken => {
         console.log(responseToken);
-        this.transaction.idempotency_Key = responseToken.idempotency_Key;
-        this.walletService.createBet(this.transaction).subscribe(
+        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+        this.saveTransaction.data = this.transaction;
+        this.walletService.createBet(this.saveTransaction).subscribe(
           response => {
             console.log(response);
             this.refreshList();
@@ -235,8 +246,9 @@ export class HomePage implements OnInit {
     this.walletService.getIdempotencyToken().subscribe(
       responseToken => {
         console.log(responseToken);
-        transactionRow.idempotency_Key = responseToken.idempotency_Key;
-        this.walletService.createWin(transactionRow).subscribe(
+        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+        this.saveTransaction.data = transactionRow;
+        this.walletService.createWin(this.saveTransaction).subscribe(
           response => {
             console.log(response);
             this.refreshList();
@@ -257,15 +269,24 @@ export class HomePage implements OnInit {
     this.walletService.getIdempotencyToken().subscribe(
       responseToken => {
         console.log(responseToken);
-        this.transaction.idempotency_Key = responseToken.idempotency_Key;
-        this.walletService.createBet(this.transaction).subscribe(
+        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+        this.saveTransaction.data = this.transaction;
+        this.walletService.createBet(this.saveTransaction).subscribe(
           responseWallet => {
             console.log(responseWallet);
             this.transaction.typeTransaction = 'WIN';
-            this.walletService.createWin(this.transaction).subscribe(
-              response => {
-                console.log(response);
-                this.refreshList();
+            this.walletService.getIdempotencyToken().subscribe(
+              responseToken2 => {
+                console.log(responseToken);
+                this.saveTransaction.idempotency_Key = responseToken2.idempotency_Key;
+                this.walletService.createWin(this.saveTransaction).subscribe(
+                  response => {
+                    console.log(response);
+                    this.refreshList();
+                  },
+                  error => {
+                    console.log(error);
+                  });
               },
               error => {
                 console.log(error);

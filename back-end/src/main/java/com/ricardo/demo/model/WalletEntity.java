@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "wallet")
-public class Wallet {
+public class WalletEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
@@ -18,11 +18,11 @@ public class Wallet {
 	@Column(name = "bonusBalance")
 	private long bonusBalance;
 
-	public Wallet() {
+	public WalletEntity() {
 
 	}
 
-	public Wallet(long playerId, long cashBalance, long bonusBalance) {
+	public WalletEntity(long playerId, long cashBalance, long bonusBalance) {
 		this.playerId = playerId;
 		this.cashBalance = cashBalance;
 		this.bonusBalance = bonusBalance;

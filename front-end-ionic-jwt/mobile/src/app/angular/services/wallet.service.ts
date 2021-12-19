@@ -1,9 +1,10 @@
-import { Transaction } from './../models/transaction.model';
+import { SaveTransaction } from './../models/saveTransaction.model';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Wallet } from '../models/wallet.model';
 import { environment } from 'src/environments/environment';
+import { GetTransaction } from '../models/getTransaction.model';
 
 const baseUrl = `${environment.serverURL}`;
 
@@ -14,20 +15,20 @@ export class WalletService {
 
   constructor(private http: HttpClient) { }
 
-  createDeposit(data: Transaction): Observable<any> {
+  createDeposit(data: SaveTransaction): Observable<any> {
     return this.http.post(`${baseUrl}/deposit`, data);
   }
 
-  createWithdraw(data: Transaction): Observable<any> {
+  createWithdraw(data: SaveTransaction): Observable<any> {
     return this.http.post(`${baseUrl}/withdraw`, data);
   }
 
-  createBet(data: Transaction): Observable<any> {
+  createBet(data: SaveTransaction): Observable<any> {
     return this.http.post(`${baseUrl}/bet`, data);
   }
 
-  createWin(data: Transaction): Observable<any> {
-    data.amount = Number(data.amount) + Number(data.amount);
+  createWin(data: SaveTransaction): Observable<any> {
+    data.data.amount = Number(data.data.amount) + Number(data.data.amount);
     return this.http.post(`${baseUrl}/win`, data);
   }
 
@@ -35,12 +36,12 @@ export class WalletService {
     return this.http.get(`${baseUrl}/balance/${Number(playerId)}`);
   }
 
-  getTransactions(playerId: any, sortBy: any, pageNo: any, pageSize: any): Observable<Transaction[]> {
+  getTransactions(playerId: any, sortBy: any, pageNo: any, pageSize: any): Observable<GetTransaction> {
     let params = new HttpParams();
     sortBy ? params = params.append('sortBy', sortBy): ""
     pageNo ? params = params.append('pageNo', Number(pageNo)): ""
     pageSize ? params = params.append('pageSize', Number(pageSize)): ""
-    return this.http.get<Transaction[]>(`${baseUrl}/transactions/${Number(playerId)}`, {params: params});
+    return this.http.get<GetTransaction>(`${baseUrl}/transactions/${Number(playerId)}`, {params: params});
   }
 
   getIdempotencyToken(): Observable<any> {

@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.ricardo.demo.dto.TransactionDto;
-import com.ricardo.demo.model.Player;
+import com.ricardo.demo.dto.TransactionSaveDto;
+import com.ricardo.demo.model.PlayerEntity;
 import com.ricardo.demo.repository.PlayerRepository;
 import com.ricardo.demo.service.idempotency.TokenService;
 import com.ricardo.demo.service.security.TokenProvider;
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -54,9 +54,9 @@ class RicardoDemoApplicationTests {
 	@Test
 	public void should_InsertUser_GenerateAuthToken_DeleteUser() throws Exception {
 		String email = "application@test.com";
-		Player user = new Player("name", false, email, "password");
+		PlayerEntity user = new PlayerEntity("name", false, email, "password");
 		userRepository.save(user);
-		List<Player> users = userRepository.findByEmail(email);
+		List<PlayerEntity> users = userRepository.findByEmail(email);
 		assertNotNull(users.size()>0?true:null);
 
 		String token = this.tokenProvider.createToken(user);
@@ -76,12 +76,12 @@ class RicardoDemoApplicationTests {
 	public void should_Itempotency() throws Exception {
 		String token = tokenService.createToken();
 		assertNotNull(token);
-		TransactionDto lTransactionDto = new TransactionDto();
-		lTransactionDto.setIdempotency_Key(token);
+		TransactionSaveDto lTransactionSaveDto = new TransactionSaveDto();
+		lTransactionSaveDto.setIdempotency_Key(token);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
 		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-		String requestJson=ow.writeValueAsString(lTransactionDto);
+		String requestJson=ow.writeValueAsString(lTransactionSaveDto);
 		mvc.perform(MockMvcRequestBuilders
 				.post("/idempotency")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -95,12 +95,12 @@ class RicardoDemoApplicationTests {
 	@Test
 	public void should_Not_Itempotency() throws Exception {
 		String token = "7777777777777777777777777 because i can ";
-		TransactionDto lTransactionDto = new TransactionDto();
-		lTransactionDto.setIdempotency_Key(token);
+		TransactionSaveDto lTransactionSaveDto = new TransactionSaveDto();
+		lTransactionSaveDto.setIdempotency_Key(token);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
 		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-		String requestJson=ow.writeValueAsString(lTransactionDto);
+		String requestJson=ow.writeValueAsString(lTransactionSaveDto);
 		mvc.perform(MockMvcRequestBuilders
 				.post("/idempotency")
 				.contentType(MediaType.APPLICATION_JSON)

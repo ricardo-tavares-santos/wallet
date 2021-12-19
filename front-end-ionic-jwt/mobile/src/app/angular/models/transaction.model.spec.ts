@@ -1,7 +1,7 @@
-import { Wallet } from './transaction.model';
+import { Transaction } from './transaction.model';
 
 describe('Transaction', () => {
   it('should create an instance', () => {
-    expect(new Wallet()).toBeTruthy();
+    expect(new Transaction()).toBeTruthy();
   });
 });

@@ -1,6 +1,6 @@
 package com.ricardo.demo.service.security;
 
-import com.ricardo.demo.model.Player;
+import com.ricardo.demo.model.PlayerEntity;
 import com.ricardo.demo.repository.PlayerRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,7 +28,7 @@ public class TokenProvider {
      this.tokenValidityInMilliseconds = 1000 * config.getTokenValidityInSeconds();
   }
 
-  public String createToken(Player player) {
+  public String createToken(PlayerEntity player) {
     Date now = new Date();
     Date validity = new Date(now.getTime() + this.tokenValidityInMilliseconds);
 
@@ -42,9 +42,9 @@ public class TokenProvider {
     String email = Jwts.parser().setSigningKey(this.secretKey).parseClaimsJws(token)
         .getBody().getSubject();
 
-    List<Player> users = new ArrayList<Player>();
+    List<PlayerEntity> users = new ArrayList<PlayerEntity>();
     userRepository.findByEmail(email).forEach(users::add);
-    Player user = users.size()>0?users.get(0):null;
+    PlayerEntity user = users.size()>0?users.get(0):null;
 
     if (user == null) {
       throw new UsernameNotFoundException("User '" + email + "' not found");

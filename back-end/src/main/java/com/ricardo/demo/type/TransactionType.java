@@ -1,6 +1,6 @@
 package com.ricardo.demo.type;
 
-public enum TypeTransaction {
+public enum TransactionType {
 	WIN,
 	BET,
     DEPOSIT,

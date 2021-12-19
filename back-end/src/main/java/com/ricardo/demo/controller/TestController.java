@@ -1,6 +1,7 @@
 package com.ricardo.demo.controller;
 
 import com.ricardo.demo.dto.TransactionDto;
+import com.ricardo.demo.dto.TransactionSaveDto;
 import com.ricardo.demo.dto.test.IdempotencyDto;
 import com.ricardo.demo.service.idempotency.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,9 @@ public class TestController {
   }
 
   @PostMapping("/idempotency")
-  public ResponseEntity<IdempotencyDto> checkIdempotency(@RequestBody TransactionDto lTransactionDto) {
+  public ResponseEntity<IdempotencyDto> checkIdempotency(@RequestBody TransactionSaveDto lTransactionSaveDto) {
     IdempotencyDto lIdempotencyDto = new IdempotencyDto();
-    String tokenMsg = tokenService.checkToken(lTransactionDto.getIdempotency_Key());
+    String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
     lIdempotencyDto.setMsg(tokenMsg);
     if(tokenMsg=="OK") {
       return new ResponseEntity<>(lIdempotencyDto, HttpStatus.OK);

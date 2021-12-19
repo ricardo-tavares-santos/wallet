@@ -1,11 +1,9 @@
 package com.ricardo.demo.repository;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.ricardo.demo.model.Wallet;
+import com.ricardo.demo.model.WalletEntity;
 
-public interface WalletRepository extends JpaRepository<Wallet, Long> {
-  Wallet findByPlayerId(long playerId);
+public interface WalletRepository extends JpaRepository<WalletEntity, Long> {
+  WalletEntity findByPlayerId(long playerId);
 }

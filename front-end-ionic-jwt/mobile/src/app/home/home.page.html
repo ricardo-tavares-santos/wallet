@@ -84,24 +84,24 @@
 
   <!------------------ List ------------------>
 
-  <ion-item>
-    <ion-checkbox (ionChange)="checkValues('WIN')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+  <ion-item *ngIf="transactionsFull?.length>0">
+    <ion-checkbox (ionChange)="checkValues('WIN')" checked></ion-checkbox>
     &nbsp;
-    <ion-text checked *ngIf="transactionsFull?.length>0">WIN</ion-text>
+    <ion-text checked>WIN</ion-text>
     &nbsp;
-    <ion-checkbox (ionChange)="checkValues('BET')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    <ion-checkbox (ionChange)="checkValues('BET')" checked></ion-checkbox>
     &nbsp;
-    <ion-text checked *ngIf="transactionsFull?.length>0">BET</ion-text>
+    <ion-text checked>BET</ion-text>
     &nbsp;
-    <ion-checkbox (ionChange)="checkValues('DEPOSIT')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    <ion-checkbox (ionChange)="checkValues('DEPOSIT')" checked></ion-checkbox>
     &nbsp;
-    <ion-text checked *ngIf="transactionsFull?.length>0">DEPOSIT</ion-text>
+    <ion-text checked>DEPOSIT</ion-text>
     &nbsp;
-    <ion-checkbox (ionChange)="checkValues('WITHDRAW')" checked *ngIf="transactionsFull?.length>0"></ion-checkbox>
+    <ion-checkbox (ionChange)="checkValues('WITHDRAW')" checked></ion-checkbox>
     &nbsp;
-    <ion-text checked *ngIf="transactionsFull?.length>0">WITHDRAW</ion-text>
+    <ion-text checked>WITHDRAW</ion-text>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    Order by&nbsp;
+    <ion-text> Order by&nbsp;</ion-text>
     <ion-select interface="popover" [(ngModel)]="orderBy" (ionChange)="optionsFn();">
       <ion-select-option value="dateTransaction">Date</ion-select-option>
       <ion-select-option value="amount">Amount</ion-select-option>
@@ -110,9 +110,6 @@
       <ion-select-option value="playerId">Player Id</ion-select-option>
     </ion-select>
 
-
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    Page Size Max:&nbsp;{{pageSize}}
     <!--
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     Page Size Max:&nbsp;
@@ -156,7 +153,11 @@
       </ion-item>
     </ion-list>  
   </ion-item-group>
-
+<!--
+  <ion-text checked *ngIf="pageSize>0">Page Size Max:&nbsp;{{pageSize}}</ion-text>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <ion-text checked *ngIf="pageNoTotal>0">Page No Total:&nbsp;{{pageNoTotal}}</ion-text>
+-->
   <section class="full-width">
     <ion-button expand="block" color="warning" fill="outline" (click)="setMore()" *ngIf="pageSizeTotal>pageSize" >+</ion-button>
   </section>

@@ -1,21 +1,16 @@
 package com.ricardo.demo.controller;
 
-import com.ricardo.demo.dto.IdempotencyTokenDto;
-import com.ricardo.demo.dto.TransactionDto;
-import com.ricardo.demo.dto.TransactionListDto;
-import com.ricardo.demo.dto.WalletDto;
-import com.ricardo.demo.model.Player;
-import com.ricardo.demo.model.Transaction;
-import com.ricardo.demo.model.Wallet;
+import com.ricardo.demo.dto.*;
+import com.ricardo.demo.model.PlayerEntity;
+import com.ricardo.demo.model.WalletEntity;
 import com.ricardo.demo.repository.PlayerRepository;
 import com.ricardo.demo.repository.TransactionRepository;
 import com.ricardo.demo.repository.WalletRepository;
 import com.ricardo.demo.service.LogicService;
 import com.ricardo.demo.service.idempotency.TokenService;
 import com.ricardo.demo.service.security.TokenProvider;
-import com.ricardo.demo.type.TypeTransaction;
+import com.ricardo.demo.type.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,9 +52,9 @@ public class AppController {
 	public void authenticate() {
 	}	
 	@PostMapping("/login")
-	public ResponseEntity<String> authorize(@Valid @RequestBody Player loginUser) {
+	public ResponseEntity<String> authorize(@Valid @RequestBody PlayerEntity loginUser) {
 		try {
-			List<Player> players = new ArrayList<Player>();
+			List<PlayerEntity> players = new ArrayList<PlayerEntity>();
 			if (loginUser.getEmail() == null) {
 				this.passwordEncoder.matches(loginUser.getPassword(), this.userNotFoundEncodedPassword);
 				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
@@ -82,14 +77,14 @@ public class AppController {
 		}
 	}
 	@PostMapping("/signup")
-	public String signup(@RequestBody Player signupUser) {
-		List<Player> players = new ArrayList<Player>();	
+	public String signup(@RequestBody PlayerEntity signupUser) {
+		List<PlayerEntity> players = new ArrayList<PlayerEntity>();
 		playerRepository.findByEmail(signupUser.getEmail()).forEach(players::add);			
 		if (!players.isEmpty()) {
 			return "EXISTS";
 		}
 		signupUser.setPassword(passwordEncoder.encode(signupUser.getPassword()));
-		playerRepository.save(new Player(signupUser.getName(), signupUser.getAdmin(), signupUser.getEmail(), signupUser.getPassword()));
+		playerRepository.save(new PlayerEntity(signupUser.getName(), signupUser.getAdmin(), signupUser.getEmail(), signupUser.getPassword()));
 		return this.tokenProvider.createToken(signupUser);
 	}
 
@@ -98,13 +93,15 @@ public class AppController {
 	// POST not allow values less than €0
 
 	@PostMapping("/deposit")
-	public ResponseEntity<WalletDto> createDeposit(@RequestBody TransactionDto lTransactionDto) {
+	public ResponseEntity<WalletDto> createDeposit(@RequestBody TransactionSaveDto lTransactionSaveDto) {
 		try {
+			TransactionDto lTransactionDto = lTransactionSaveDto.getData();
+
 			// verify idempotency
-			if (lTransactionDto.getIdempotency_Key() == null || lTransactionDto.getIdempotency_Key() =="") {
+			if (lTransactionSaveDto.getIdempotency_Key() == null || lTransactionSaveDto.getIdempotency_Key() =="") {
 				return new ResponseEntity<>(HttpStatus.CONFLICT);
 			} else {
-				String tokenMsg = tokenService.checkToken(lTransactionDto.getIdempotency_Key());
+				String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
 				if(tokenMsg!="OK") {
 					return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 				}
@@ -115,7 +112,7 @@ public class AppController {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
-			logicService.saveTransaction(lTransactionDto, TypeTransaction.DEPOSIT);
+			logicService.saveTransaction(lTransactionDto, TransactionType.DEPOSIT);
 			WalletDto lWalletDto = logicService.createDeposit(lTransactionDto);
 			return new ResponseEntity<>(lWalletDto, HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -125,13 +122,15 @@ public class AppController {
 	}
 
 	@PostMapping("/withdraw")
-	public ResponseEntity<WalletDto> createWithdraw(@RequestBody TransactionDto lTransactionDto) {
+	public ResponseEntity<WalletDto> createWithdraw(@RequestBody TransactionSaveDto lTransactionSaveDto) {
 		try {
+			TransactionDto lTransactionDto = lTransactionSaveDto.getData();
+
 			// verify idempotency
-			if (lTransactionDto.getIdempotency_Key() == null || lTransactionDto.getIdempotency_Key() =="") {
+			if (lTransactionSaveDto.getIdempotency_Key() == null || lTransactionSaveDto.getIdempotency_Key() =="") {
 				return new ResponseEntity<>(HttpStatus.CONFLICT);
 			} else {
-				String tokenMsg = tokenService.checkToken(lTransactionDto.getIdempotency_Key());
+				String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
 				if(tokenMsg!="OK") {
 					return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 				}
@@ -142,7 +141,7 @@ public class AppController {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
-			logicService.saveTransaction(lTransactionDto, TypeTransaction.WITHDRAW);
+			logicService.saveTransaction(lTransactionDto, TransactionType.WITHDRAW);
 			WalletDto lWalletDto = logicService.createWithdraw(lTransactionDto);
 			return new ResponseEntity<>(lWalletDto, HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -153,13 +152,15 @@ public class AppController {
 
 	// bet not allow values less than €0
 	@PostMapping("/bet")
-	public ResponseEntity<WalletDto> createBet(@RequestBody TransactionDto lTransactionDto) {
+	public ResponseEntity<WalletDto> createBet(@RequestBody TransactionSaveDto lTransactionSaveDto) {
 		try {
+			TransactionDto lTransactionDto = lTransactionSaveDto.getData();
+
 			// verify idempotency
-			if (lTransactionDto.getIdempotency_Key() == null || lTransactionDto.getIdempotency_Key() =="") {
+			if (lTransactionSaveDto.getIdempotency_Key() == null || lTransactionSaveDto.getIdempotency_Key() =="") {
 				return new ResponseEntity<>(HttpStatus.CONFLICT);
 			} else {
-				String tokenMsg = tokenService.checkToken(lTransactionDto.getIdempotency_Key());
+				String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
 				if(tokenMsg!="OK") {
 					return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 				}
@@ -170,7 +171,7 @@ public class AppController {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
-			logicService.saveTransaction(lTransactionDto, TypeTransaction.BET);
+			logicService.saveTransaction(lTransactionDto, TransactionType.BET);
 			WalletDto lWalletDto = logicService.createBet(lTransactionDto);
 			return new ResponseEntity<>(lWalletDto, HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -180,13 +181,15 @@ public class AppController {
 	}
 
 	@PostMapping("/win")
-	public ResponseEntity<WalletDto> createWin(@RequestBody TransactionDto lTransactionDto) {
+	public ResponseEntity<WalletDto> createWin(@RequestBody TransactionSaveDto lTransactionSaveDto) {
 		try {
+			TransactionDto lTransactionDto = lTransactionSaveDto.getData();
+
 			// verify idempotency
-			if (lTransactionDto.getIdempotency_Key() == null || lTransactionDto.getIdempotency_Key() =="") {
+			if (lTransactionSaveDto.getIdempotency_Key() == null || lTransactionSaveDto.getIdempotency_Key() =="") {
 				return new ResponseEntity<>(HttpStatus.CONFLICT);
 			} else {
-				String tokenMsg = tokenService.checkToken(lTransactionDto.getIdempotency_Key());
+				String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
 				if(tokenMsg!="OK") {
 					return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 				}
@@ -197,7 +200,7 @@ public class AppController {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
-			logicService.saveTransaction(lTransactionDto, TypeTransaction.WIN);
+			logicService.saveTransaction(lTransactionDto, TransactionType.WIN);
 			WalletDto lWalletDto = logicService.createWin(lTransactionDto);
 			return new ResponseEntity<>(lWalletDto, HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -206,17 +209,16 @@ public class AppController {
 		}
 	}
 
-	
+
 	@GetMapping("/transactions/{playerId}")
-	public ResponseEntity<List<TransactionListDto>> getTransactions(
+	public ResponseEntity<TransactionListDto> getTransactions(
 			@PathVariable("playerId") long playerId,
 			@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "100") Integer pageSize,
 			@RequestParam(defaultValue = "dateTransaction") String sortBy) {
 		try {
-			List<TransactionListDto> lTransactionListDto = new ArrayList<TransactionListDto>();
-			lTransactionListDto = logicService.findAllTransactions(playerId, pageNo, pageSize, sortBy);
-			if (lTransactionListDto.isEmpty()) {
+			TransactionListDto lTransactionListDto = logicService.findAllTransactions(playerId, pageNo, pageSize, sortBy);
+			if (lTransactionListDto.getData().isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 			return new ResponseEntity<>(lTransactionListDto, HttpStatus.OK);
@@ -229,13 +231,13 @@ public class AppController {
 	@GetMapping("/balance/{playerId}")
 	public ResponseEntity<WalletDto> getBalance(@PathVariable("playerId") long playerId) {
 		try {
-			Wallet lWallet = new Wallet();
+			WalletEntity lWallet = new WalletEntity();
 			if (playerId > 0)
 				lWallet = walletRepository.findByPlayerId(playerId);
 			if (lWallet == null) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
-			return new ResponseEntity<>(logicService.convertWalletDto(lWallet), HttpStatus.OK);
+			return new ResponseEntity<>(logicService.convertWalletEntityToDto(lWallet), HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println("/balance : "+e);
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

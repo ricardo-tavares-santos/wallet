@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "player")
-public class Player {
+public class PlayerEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
@@ -21,10 +21,10 @@ public class Player {
     @Column(name = "admin")
 	private boolean admin;
 
-	public Player() {
+	public PlayerEntity() {
 	}
 
-	public Player(String name, boolean admin, String email, String password) {
+	public PlayerEntity(String name, boolean admin, String email, String password) {
 		this.name = name;
 		this.admin = admin;
 		this.email = email;

@@ -3,12 +3,11 @@ package com.ricardo.demo.service;
 import com.ricardo.demo.dto.TransactionDto;
 import com.ricardo.demo.dto.TransactionListDto;
 import com.ricardo.demo.dto.WalletDto;
-import com.ricardo.demo.model.Transaction;
-import com.ricardo.demo.model.Wallet;
-import com.ricardo.demo.repository.PlayerRepository;
+import com.ricardo.demo.model.TransactionEntity;
+import com.ricardo.demo.model.WalletEntity;
 import com.ricardo.demo.repository.TransactionRepository;
 import com.ricardo.demo.repository.WalletRepository;
-import com.ricardo.demo.type.TypeTransaction;
+import com.ricardo.demo.type.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.domain.Page;
@@ -18,8 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,14 +33,14 @@ public class LogicService {
 
 	// only cash balances can be withdrawn
 	public WalletDto createWithdraw(TransactionDto lTransactionDto) {
-		Wallet lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
+		WalletEntity lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
 		long amount = Long.parseLong(lTransactionDto.getAmount());
 		lWallet.setCashBalance(lWallet.getCashBalance()-amount);
 		walletRepository.save(lWallet);
-		return convertWalletDto(lWallet);
+		return convertWalletEntityToDto(lWallet);
 	}
 	public boolean isWithdrawValid(TransactionDto lTransactionDto) {
-		Wallet lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
+		WalletEntity lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
 		long totalValue = lWallet.getCashBalance();
 		if (totalValue >= Long.parseLong(lTransactionDto.getAmount())) {
 			return true;
@@ -53,7 +50,7 @@ public class LogicService {
 
 	// money withdrawn for bets takes a cash first approach
 	public WalletDto createBet(TransactionDto lTransactionDto) {
-		Wallet lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
+		WalletEntity lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
 		long amount = Long.parseLong(lTransactionDto.getAmount());
 		long cash = lWallet.getCashBalance();
 		if(cash-amount < 0) {
@@ -63,10 +60,10 @@ public class LogicService {
 			lWallet.setCashBalance(lWallet.getCashBalance()-amount);
 		}
 		walletRepository.save(lWallet);
-		return convertWalletDto(lWallet);
+		return convertWalletEntityToDto(lWallet);
 	}
 	public boolean isBetValid(TransactionDto lTransactionDto) {
-		Wallet lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
+		WalletEntity lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
 		long totalValue = lWallet.getBonusBalance()+lWallet.getCashBalance();
 		if (totalValue >= Long.parseLong(lTransactionDto.getAmount())) {
 			return true;
@@ -76,18 +73,18 @@ public class LogicService {
 
 	// wins from bets must be always split proportionally to bet
 	public WalletDto createWin(TransactionDto lTransactionDto) {
-		Wallet lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
+		WalletEntity lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
 		long amount = Long.parseLong(lTransactionDto.getAmount())/2;
 		lWallet.setBonusBalance(lWallet.getBonusBalance()+amount);
 		lWallet.setCashBalance(lWallet.getCashBalance()+amount);
 		walletRepository.save(lWallet);
-		return convertWalletDto(lWallet);
+		return convertWalletEntityToDto(lWallet);
 	}
 
 	// 100% bonus for any deposit greater than €100
 	public WalletDto createDeposit(TransactionDto lTransactionDto) {
-		Wallet lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
-		Wallet pWallet = new Wallet();
+		WalletEntity lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
+		WalletEntity pWallet = new WalletEntity();
 		pWallet.setPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
 		long amount = Long.parseLong(lTransactionDto.getAmount());
 		if (lWallet==null) {
@@ -105,11 +102,11 @@ public class LogicService {
 			}
 			walletRepository.save(lWallet);
 		}
-		return convertWalletDto(pWallet);
+		return convertWalletEntityToDto(pWallet);
 	}
 
-	public void saveTransaction(TransactionDto lTransactionDto, TypeTransaction lTypeTransaction) {
-		Transaction lTransaction = new Transaction();
+	public void saveTransaction(TransactionDto lTransactionDto, TransactionType lTypeTransaction) {
+		TransactionEntity lTransaction = new TransactionEntity();
 		lTransaction.setDateTransaction(new Date());
 		lTransaction.setTypeTransaction(lTypeTransaction);
 		lTransaction.setTransactionId(lTransactionDto.getTransactionId());
@@ -118,39 +115,44 @@ public class LogicService {
 		transactionRepository.save(lTransaction);
 	}
 
-	public WalletDto convertWalletDto (Wallet lWallet ) {
+	public WalletDto convertWalletEntityToDto (WalletEntity lWallet ) {
 		WalletDto lWalletDto = new WalletDto();
 		lWalletDto.setCashBalance(lWallet.getCashBalance()+"");
 		lWalletDto.setBonusBalance(lWallet.getBonusBalance()+"");
 		return lWalletDto;
 	}
 
-	public TransactionListDto convertTransactionListDto (Transaction lTransaction) {
-		TransactionListDto lTransactionListDto = new TransactionListDto();
-		lTransactionListDto.setTransactionId(lTransaction.getTransactionId());
+	public TransactionDto convertTransactionEntityToDto (TransactionEntity lTransaction) {
+		TransactionDto lTransactionDto = new TransactionDto();
+		lTransactionDto.setTransactionId(lTransaction.getTransactionId());
 		String dataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lTransaction.getDateTransaction());
-		lTransactionListDto.setDateTransaction(dataFormat);
-		lTransactionListDto.setAmount(lTransaction.getAmount()+"");
-		lTransactionListDto.setPlayerId(lTransaction.getPlayerId()+"");
-		lTransactionListDto.setTypeTransaction(lTransaction.getTypeTransaction().name());
-		return lTransactionListDto;
+		lTransactionDto.setDateTransaction(dataFormat);
+		lTransactionDto.setAmount(lTransaction.getAmount()+"");
+		lTransactionDto.setPlayerId(lTransaction.getPlayerId()+"");
+		lTransactionDto.setTypeTransaction(lTransaction.getTypeTransaction().name());
+		return lTransactionDto;
 	}
 
-	public List<TransactionListDto> findAllTransactions ( long playerId, Integer pageNo, Integer pageSize, String sortBy) {
+	public TransactionListDto findAllTransactions ( long playerId, Integer pageNo, Integer pageSize, String sortBy) {
+		TransactionListDto lTransactionListDto = new TransactionListDto();
 		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
-		List<Transaction> lTransaction = new ArrayList<Transaction>();
+		List<TransactionEntity> lTransaction = new ArrayList<TransactionEntity>();
+		Page<TransactionEntity> pagedResult;
 		if (playerId == 0) {
-			Page<Transaction> pagedResult = transactionRepository.findAll(paging);
-			if(pagedResult.hasContent()) {
-				lTransaction = pagedResult.getContent();
-			}
+			pagedResult = transactionRepository.findAll(paging);
 		} else {
-			lTransaction = transactionRepository.findByPlayerId(playerId, paging);
+			pagedResult = transactionRepository.findByPlayerId(playerId, paging);
 		}
-		List<TransactionListDto> lTransactionListDto = new ArrayList<TransactionListDto>();
-		for (Transaction t : lTransaction) {
-			lTransactionListDto.add(convertTransactionListDto(t));
+		lTransactionListDto.setPageSizeTotal(pagedResult.getTotalElements());
+		lTransactionListDto.setPageNoTotal(pagedResult.getTotalPages());
+		if(pagedResult.hasContent()) {
+			lTransaction = pagedResult.getContent();
 		}
+		List<TransactionDto> lTransactionsDto = new ArrayList<TransactionDto>();
+		for (TransactionEntity t : lTransaction) {
+			lTransactionsDto.add(convertTransactionEntityToDto(t));
+		}
+		lTransactionListDto.setData(lTransactionsDto);
 		return lTransactionListDto;
 	}
 

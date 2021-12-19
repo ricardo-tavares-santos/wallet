@@ -97,6 +97,8 @@ ionic capacitor build ios
 
 ![alt text](img/wallet-android.png)
 
+Project Structure:
+Android Gradle Plugin Version (7.0.4) & Gradle Version (7.3.2)
 
 ## Architecture
 
@@ -167,6 +169,8 @@ Controller:
 		}
 	}
 ```
+![alt text](img/wallet-paging0.png)
+![alt text](img/wallet-paging.png)
 
 Frontend: **Angular** architecture chosen to test build complex enterprise-grade apps like single-page apps and progressive web apps using its model-view-controller capability that augments the functionalities of browser-based applications by reducing the javascript code needed to keep the application functional and robust.
 
@@ -352,12 +356,12 @@ Itempotency Test
 	public void should_Itempotency() throws Exception {
 		String token = tokenService.createToken();
 		assertNotNull(token);
-		TransactionDto lTransactionDto = new TransactionDto();
-		lTransactionDto.setIdempotency_Key(token);
+		TransactionSaveDto lTransactionSaveDto = new TransactionSaveDto();
+		lTransactionSaveDto.setIdempotency_Key(token);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
 		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-		String requestJson=ow.writeValueAsString(lTransactionDto);
+		String requestJson=ow.writeValueAsString(lTransactionSaveDto);
 		mvc.perform(MockMvcRequestBuilders
 				.post("/idempotency")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -374,12 +378,12 @@ Itempotency Test
 	@Test
 	public void should_Not_Itempotency() throws Exception {
 		String token = "7777777777777777777777777 because i can ";
-		TransactionDto lTransactionDto = new TransactionDto();
-		lTransactionDto.setIdempotency_Key(token);
+		TransactionSaveDto lTransactionSaveDto = new TransactionSaveDto();
+		lTransactionSaveDto.setIdempotency_Key(token);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
 		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-		String requestJson=ow.writeValueAsString(lTransactionDto);
+		String requestJson=ow.writeValueAsString(lTransactionSaveDto);
 		mvc.perform(MockMvcRequestBuilders
 				.post("/idempotency")
 				.contentType(MediaType.APPLICATION_JSON)

@@ -4,6 +4,4 @@ export class Transaction {
   amount?: any;
   dateTransaction?: any;
   typeTransaction?: any;
-
-  idempotency_Key?: any;
 }
