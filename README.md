@@ -2,6 +2,7 @@
 
 _Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres/Redis_
 
+Roles: Player & Admin
 ![alt text](img/wallet-geral.png)
 
 ## Run: localhost (desenv)
@@ -122,16 +123,13 @@ spring-boot-maven-plugin
 
 REST Response
 ```sh
-ALL HttpStatus.FORBIDDEN (access denied)
-ALL HttpStatus.INTERNAL_SERVER_ERROR (system fails)
-
-ALL HttpStatus.UNAUTHORIZED (auth)
-
+ALL  HttpStatus.FORBIDDEN (access denied)
+ALL  HttpStatus.INTERNAL_SERVER_ERROR (system fails)
+ALL  HttpStatus.UNAUTHORIZED (auth)
 POST HttpStatus.CONFLICT (idempotency)
 POST HttpStatus.PRECONDITION_FAILED (business rules)
 POST HttpStatus.CREATED (saved ok)
-
-GET HttpStatus.NO_CONTENT (empty)
+GET  HttpStatus.NO_CONTENT (empty)
 ```
 
 **Idempotency**: The API supports idempotency for safely retrying requests without accidentally performing the same operation twice.
