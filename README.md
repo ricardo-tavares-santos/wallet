@@ -149,8 +149,10 @@ GET  HttpStatus.NO_CONTENT (empty)
 **Sorting & Pagination**: The APP supports sorting and pagination on the read transactions endpoint.
 
 ```sh
-Service: Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
-Repository: List<Transaction> findByPlayerId(long playerId, Pageable pageable);
+Service:...
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
+Repository:...
+        Page<TransactionEntity> findByPlayerId(long playerId, Pageable pageable); (findAll to admin)
 Controller:
 	@GetMapping("/transactions/{playerId}")
 	public ResponseEntity<List<TransactionListDto>> getTransactions(
