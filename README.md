@@ -28,6 +28,7 @@ mvn spring-boot:run
 ```
 
 **Frontend:**
+
 ./wallet/front-end-ionic-jwt/mobile
 ```sh
 npm i
