@@ -4,10 +4,8 @@ import com.ricardo.demo.dto.*;
 import com.ricardo.demo.model.PlayerEntity;
 import com.ricardo.demo.model.WalletEntity;
 import com.ricardo.demo.repository.PlayerRepository;
-import com.ricardo.demo.repository.TransactionRepository;
 import com.ricardo.demo.repository.WalletRepository;
 import com.ricardo.demo.service.LogicService;
-import com.ricardo.demo.service.idempotency.TokenService;
 import com.ricardo.demo.service.security.TokenProvider;
 import com.ricardo.demo.type.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +25,6 @@ public class AppController {
 
 	@Autowired
 	PlayerRepository playerRepository;
-
-	@Autowired
-	TransactionRepository transactionRepository;
 
 	@Autowired
 	WalletRepository walletRepository;
@@ -93,27 +88,30 @@ public class AppController {
 	// POST not allow values less than €0
 
 	@PostMapping("/deposit")
-	public ResponseEntity<WalletDto> createDeposit(@RequestBody TransactionSaveDto lTransactionSaveDto) {
+	public ResponseEntity<WalletDto> createDeposit(@RequestBody TransactionDto lTransactionDto) {
 		try {
-			TransactionDto lTransactionDto = lTransactionSaveDto.getData();
-
-			// verify idempotency
-			if (lTransactionSaveDto.getIdempotency_Key() == null || lTransactionSaveDto.getIdempotency_Key() =="") {
-				return new ResponseEntity<>(HttpStatus.CONFLICT);
-			} else {
-				String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
-				if(tokenMsg!="OK") {
-					return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-				}
-			}
 
 			// verify precontition
 			if (Long.parseLong(lTransactionDto.getAmount())<0) {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
-			logicService.saveTransaction(lTransactionDto, TransactionType.DEPOSIT);
-			WalletDto lWalletDto = logicService.createDeposit(lTransactionDto);
+			WalletDto lWalletDto = new WalletDto();
+
+			// verify idempotency
+			String idempotency = logicService.verifyIdempotency(lTransactionDto);
+			switch (idempotency) {
+				case "conflict":
+					return new ResponseEntity<>(HttpStatus.CONFLICT);
+				case "same":
+					lWalletDto = logicService.convertWalletEntityToDto(walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId())));
+					break;
+				case "new":
+					logicService.saveTransaction(lTransactionDto, TransactionType.DEPOSIT);
+					lWalletDto = logicService.createDeposit(lTransactionDto);
+					break;
+			}
+
 			return new ResponseEntity<>(lWalletDto, HttpStatus.CREATED);
 		} catch (Exception e) {
 			System.out.println("/deposit : "+e);
@@ -122,27 +120,30 @@ public class AppController {
 	}
 
 	@PostMapping("/withdraw")
-	public ResponseEntity<WalletDto> createWithdraw(@RequestBody TransactionSaveDto lTransactionSaveDto) {
+	public ResponseEntity<WalletDto> createWithdraw(@RequestBody TransactionDto lTransactionDto) {
 		try {
-			TransactionDto lTransactionDto = lTransactionSaveDto.getData();
-
-			// verify idempotency
-			if (lTransactionSaveDto.getIdempotency_Key() == null || lTransactionSaveDto.getIdempotency_Key() =="") {
-				return new ResponseEntity<>(HttpStatus.CONFLICT);
-			} else {
-				String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
-				if(tokenMsg!="OK") {
-					return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-				}
-			}
 
 			// verify precontition
 			if (Long.parseLong(lTransactionDto.getAmount())<0 || !logicService.isWithdrawValid(lTransactionDto)) {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
-			logicService.saveTransaction(lTransactionDto, TransactionType.WITHDRAW);
-			WalletDto lWalletDto = logicService.createWithdraw(lTransactionDto);
+			WalletDto lWalletDto = new WalletDto();
+
+			// verify idempotency
+			String idempotency = logicService.verifyIdempotency(lTransactionDto);
+			switch (idempotency) {
+				case "conflict":
+					return new ResponseEntity<>(HttpStatus.CONFLICT);
+				case "same":
+					lWalletDto = logicService.convertWalletEntityToDto(walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId())));
+					break;
+				case "new":
+					logicService.saveTransaction(lTransactionDto, TransactionType.WITHDRAW);
+					lWalletDto = logicService.createWithdraw(lTransactionDto);
+					break;
+			}
+
 			return new ResponseEntity<>(lWalletDto, HttpStatus.CREATED);
 		} catch (Exception e) {
 			System.out.println("/withdraw : "+e);
@@ -152,27 +153,30 @@ public class AppController {
 
 	// bet not allow values less than €0
 	@PostMapping("/bet")
-	public ResponseEntity<WalletDto> createBet(@RequestBody TransactionSaveDto lTransactionSaveDto) {
+	public ResponseEntity<WalletDto> createBet(@RequestBody TransactionDto lTransactionDto) {
 		try {
-			TransactionDto lTransactionDto = lTransactionSaveDto.getData();
-
-			// verify idempotency
-			if (lTransactionSaveDto.getIdempotency_Key() == null || lTransactionSaveDto.getIdempotency_Key() =="") {
-				return new ResponseEntity<>(HttpStatus.CONFLICT);
-			} else {
-				String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
-				if(tokenMsg!="OK") {
-					return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-				}
-			}
 
 			// verify precontition
 			if (Long.parseLong(lTransactionDto.getAmount())<=0 || !logicService.isBetValid(lTransactionDto)) {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
-			logicService.saveTransaction(lTransactionDto, TransactionType.BET);
-			WalletDto lWalletDto = logicService.createBet(lTransactionDto);
+			WalletDto lWalletDto = new WalletDto();
+
+			// verify idempotency
+			String idempotency = logicService.verifyIdempotency(lTransactionDto);
+			switch (idempotency) {
+				case "conflict":
+					return new ResponseEntity<>(HttpStatus.CONFLICT);
+				case "same":
+					lWalletDto = logicService.convertWalletEntityToDto(walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId())));
+					break;
+				case "new":
+					logicService.saveTransaction(lTransactionDto, TransactionType.BET);
+					lWalletDto = logicService.createBet(lTransactionDto);
+					break;
+			}
+
 			return new ResponseEntity<>(lWalletDto, HttpStatus.CREATED);
 		} catch (Exception e) {
 			System.out.println("/bet : "+e);
@@ -181,27 +185,30 @@ public class AppController {
 	}
 
 	@PostMapping("/win")
-	public ResponseEntity<WalletDto> createWin(@RequestBody TransactionSaveDto lTransactionSaveDto) {
+	public ResponseEntity<WalletDto> createWin(@RequestBody TransactionDto lTransactionDto) {
 		try {
-			TransactionDto lTransactionDto = lTransactionSaveDto.getData();
-
-			// verify idempotency
-			if (lTransactionSaveDto.getIdempotency_Key() == null || lTransactionSaveDto.getIdempotency_Key() =="") {
-				return new ResponseEntity<>(HttpStatus.CONFLICT);
-			} else {
-				String tokenMsg = tokenService.checkToken(lTransactionSaveDto.getIdempotency_Key());
-				if(tokenMsg!="OK") {
-					return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-				}
-			}
 
 			// verify precontition
 			if (Long.parseLong(lTransactionDto.getAmount())<0) {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
-			logicService.saveTransaction(lTransactionDto, TransactionType.WIN);
-			WalletDto lWalletDto = logicService.createWin(lTransactionDto);
+			WalletDto lWalletDto = new WalletDto();
+
+			// verify idempotency
+			String idempotency = logicService.verifyIdempotency(lTransactionDto);
+			switch (idempotency) {
+				case "conflict":
+					return new ResponseEntity<>(HttpStatus.CONFLICT);
+				case "same":
+					lWalletDto = logicService.convertWalletEntityToDto(walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId())));
+					break;
+				case "new":
+					logicService.saveTransaction(lTransactionDto, TransactionType.WIN);
+					lWalletDto = logicService.createWin(lTransactionDto);
+					break;
+			}
+
 			return new ResponseEntity<>(lWalletDto, HttpStatus.CREATED);
 		} catch (Exception e) {
 			System.out.println("/win : "+e);
@@ -238,27 +245,6 @@ public class AppController {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 			return new ResponseEntity<>(logicService.convertWalletEntityToDto(lWallet), HttpStatus.OK);
-		} catch (Exception e) {
-			System.out.println("/balance : "+e);
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	// ------------- idempotency --------------
-
-	@Autowired
-	private TokenService tokenService;
-
-	@GetMapping("/getIdempotencyToken")
-	public ResponseEntity<IdempotencyTokenDto> getIdempotencyToken() {
-		try {
-			String idempotencyToken = tokenService.createToken();
-			if (idempotencyToken == null || idempotencyToken=="") {
-				return new ResponseEntity<>(HttpStatus.CONFLICT);
-			}
-			IdempotencyTokenDto lIdempotencyTokenDto = new IdempotencyTokenDto();
-			lIdempotencyTokenDto.setIdempotency_Key(idempotencyToken);
-			return new ResponseEntity<>(lIdempotencyTokenDto, HttpStatus.OK);
 		} catch (Exception e) {
 			System.out.println("/balance : "+e);
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

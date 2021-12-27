@@ -45,7 +45,6 @@ export class HomePage implements OnInit {
     typeTransaction: '',
   };
   saveTransaction: SaveTransaction = {
-    idempotency_Key: '',
     data: this.transaction,
   };
 
@@ -176,10 +175,7 @@ export class HomePage implements OnInit {
     this.transaction.playerId = this.playerId;
     this.transaction.typeTransaction = 'WITHDRAW';
     this.transaction.transactionId = this.createTransactionId();
-    this.walletService.getIdempotencyToken().subscribe(
-      responseToken => {
-        console.log(responseToken);
-        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+
         this.saveTransaction.data = this.transaction;
         this.walletService.createWithdraw(this.saveTransaction).subscribe(
           response => {
@@ -189,20 +185,14 @@ export class HomePage implements OnInit {
           error => {
             console.log(error);
           });
-      },
-      error => {
-        console.log(error);
-      });
+
   }
 
   saveDeposit(): void {    
     this.transaction.playerId = this.playerId;
     this.transaction.typeTransaction = 'DEPOSIT';
     this.transaction.transactionId = this.createTransactionId();
-    this.walletService.getIdempotencyToken().subscribe(
-      responseToken => {
-        console.log(responseToken);
-        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+
         this.saveTransaction.data = this.transaction;
         this.walletService.createDeposit(this.saveTransaction).subscribe(
           response => {
@@ -212,20 +202,17 @@ export class HomePage implements OnInit {
           error => {
             console.log(error);
           });
-      },
-      error => {
-        console.log(error);
-      });
+
   }
 
   saveBet(): void {   
     this.transaction.playerId = this.playerId; 
     this.transaction.typeTransaction = 'BET';
     this.transaction.transactionId = this.createTransactionId();
-    this.walletService.getIdempotencyToken().subscribe(
-      responseToken => {
-        console.log(responseToken);
-        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+
+    this.transaction.cashBet = this.wallet.cashBalance;
+    this.transaction.bonusBet = this.wallet.bonusBalance;
+
         this.saveTransaction.data = this.transaction;
         this.walletService.createBet(this.saveTransaction).subscribe(
           response => {
@@ -235,18 +222,12 @@ export class HomePage implements OnInit {
           error => {
             console.log(error);
           });
-      },
-      error => {
-        console.log(error);
-      });
+
   }
 
   saveWinAdmin(transactionRow: Transaction): void {   
     transactionRow.typeTransaction = 'WIN';
-    this.walletService.getIdempotencyToken().subscribe(
-      responseToken => {
-        console.log(responseToken);
-        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+
         this.saveTransaction.data = transactionRow;
         this.walletService.createWin(this.saveTransaction).subscribe(
           response => {
@@ -256,29 +237,26 @@ export class HomePage implements OnInit {
           error => {
             console.log(error);
           });
-      },
-      error => {
-        console.log(error);
-      });
+
   }
 
   saveWinOnline(): void {   
     this.transaction.playerId = this.playerId; 
     this.transaction.typeTransaction = 'BET';
     this.transaction.transactionId = this.createTransactionId();
-    this.walletService.getIdempotencyToken().subscribe(
-      responseToken => {
-        console.log(responseToken);
-        this.saveTransaction.idempotency_Key = responseToken.idempotency_Key;
+
+    this.transaction.cashBet = this.wallet.cashBalance;
+    this.transaction.bonusBet = this.wallet.bonusBalance;
+
         this.saveTransaction.data = this.transaction;
         this.walletService.createBet(this.saveTransaction).subscribe(
           responseWallet => {
             console.log(responseWallet);
             this.transaction.typeTransaction = 'WIN';
-            this.walletService.getIdempotencyToken().subscribe(
-              responseToken2 => {
-                console.log(responseToken);
-                this.saveTransaction.idempotency_Key = responseToken2.idempotency_Key;
+
+            this.transaction.cashBet = null;
+            this.transaction.bonusBet = null;
+
                 this.walletService.createWin(this.saveTransaction).subscribe(
                   response => {
                     console.log(response);
@@ -287,23 +265,16 @@ export class HomePage implements OnInit {
                   error => {
                     console.log(error);
                   });
-              },
-              error => {
-                console.log(error);
-              });
     
           },
           error => {
             console.log(error);
           });
-      },
-      error => {
-        console.log(error);
-      });
+
   }
 
   createTransactionId(): string {    
-    return this.player.toLowerCase().replace(/ /g,"-")+"-"+this.makeid(3)+"-"+this.makeid(7)+"-"+this.makeid(3);
+    return this.makeid(8)+"-"+this.makeid(4)+"-"+this.makeid(4)+"-"+this.makeid(4)+"-"+this.makeid(12);
   }
   
 

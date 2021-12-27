@@ -15,21 +15,21 @@ export class WalletService {
 
   constructor(private http: HttpClient) { }
 
-  createDeposit(data: SaveTransaction): Observable<any> {
-    return this.http.post(`${baseUrl}/deposit`, data);
+  createDeposit(send: SaveTransaction): Observable<any> {
+    return this.http.post(`${baseUrl}/deposit`, send.data);
   }
 
-  createWithdraw(data: SaveTransaction): Observable<any> {
-    return this.http.post(`${baseUrl}/withdraw`, data);
+  createWithdraw(send: SaveTransaction): Observable<any> {
+    return this.http.post(`${baseUrl}/withdraw`, send.data);
   }
 
-  createBet(data: SaveTransaction): Observable<any> {
-    return this.http.post(`${baseUrl}/bet`, data);
+  createBet(send: SaveTransaction): Observable<any> {
+    return this.http.post(`${baseUrl}/bet`, send.data);
   }
 
-  createWin(data: SaveTransaction): Observable<any> {
-    data.data.amount = Number(data.data.amount) + Number(data.data.amount);
-    return this.http.post(`${baseUrl}/win`, data);
+  createWin(send: SaveTransaction): Observable<any> {
+    send.data.amount = Number(send.data.amount) + Number(send.data.amount);
+    return this.http.post(`${baseUrl}/win`, send.data);
   }
 
   getWallet(playerId: any): Observable<Wallet> {

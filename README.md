@@ -1,3 +1,99 @@
+## branch "backend"
+
+frontend OK
+
+**Issues:**
+
+- The win logic does not work well - Bug fixed: issue #13
+```sh
+Tests issue #15 
+Created BetEntity
+Created repository
+Created findbyTransactionId
+Changed TransactionSaveDto
+Changed precontition in Controller (if transactionId BET exists)
+Changed service createWin to balance between cash/bonus
+...
+```
+
+
+- Idempotency - Fixed: issue #14
+```sh
+Tests issue #15 
+Deleted all old idempotency/Redis
+Created Service check idempotency 
+Created Controller verify
+...
+```
+
+- Created new tests - issue #15 
+```sh
+	@Test
+	@Order(1)
+	public void shoud_Insert_Player() throws Exception {
+		// if player ok
+
+	}
+	@Test
+	@Order(2)
+	public void shoud_Create_Deposit_Simple() throws Exception {
+		// amount 50
+		// if cash 50 ok
+		// if bonus 0 ok
+
+	}
+	@Test
+	@Order(3)
+	public void shoud_Create_Deposit_Bonus() throws Exception {
+		// amount 100
+		// if cash 150 ok
+		// if bonus 100 ok
+
+	}
+	@Test
+	@Order(4)
+	public void shoud_Create_Bet_Win_Cash_Bonus() throws Exception {
+		// amount 250
+		// if cash 0 ok
+		// if bonus 0 ok
+
+		// WIN last Bet (won 100%)
+		// if cash 300 ok
+		// if bonus 200 ok
+	}
+	@Test
+	@Order(5)
+	public void shoud_Withdraw_Cash_Idempotent() throws Exception {
+		// amount 300
+		// if cash 0 ok
+		// if bonus 200 ok
+
+		// verify same idempotency
+		// amount 300 (same transactionId)
+
+		// verify conflict idempotency
+		// amount 1000 (same transactionId)
+	}
+	@Test
+	@Order(6)
+	public void shoud_Create_Bet_Win_Bonus() throws Exception {
+		// amount 200
+		// if cash 0 ok
+		// if bonus 0 ok
+
+		// WIN last Bet (won 100%)
+		// if cash 0 ok
+		// if bonus 400 ok
+	}
+	@Test
+	@Order(7)
+	public void shoud_Delete_All() throws Exception {
+		// if deleted ok
+	}
+```
+![alt text](img/wallet-newtest.png)
+
+
 # Demo Wallet
 
 _Ionic/Angular/Typescript/JWT/Spring Boot/Hibernate/Postgres/Redis_

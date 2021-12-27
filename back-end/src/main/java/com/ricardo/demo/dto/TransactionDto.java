@@ -1,11 +1,15 @@
 package com.ricardo.demo.dto;
 
+import javax.persistence.Column;
+
 public class TransactionDto {
     private String transactionId;
     private String playerId;
     private String amount;
     private String dateTransaction;
     private String typeTransaction;
+    private String cashBet;
+    private String bonusBet;
 
     public String getTransactionId() {
         return transactionId;
@@ -42,4 +46,20 @@ public class TransactionDto {
     public String getTypeTransaction() {return typeTransaction; }
 
     public void setTypeTransaction(String typeTransaction) {this.typeTransaction = typeTransaction;}
+
+    public String getCashBet() {
+        return cashBet;
+    }
+
+    public void setCashBet(String cashBet) {
+        this.cashBet = cashBet;
+    }
+
+    public String getBonusBet() {
+        return bonusBet;
+    }
+
+    public void setBonusBet(String bonusBet) {
+        this.bonusBet = bonusBet;
+    }
 }

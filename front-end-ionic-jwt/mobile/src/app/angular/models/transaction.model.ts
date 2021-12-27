@@ -4,4 +4,6 @@ export class Transaction {
   amount?: any;
   dateTransaction?: any;
   typeTransaction?: any;
+  cashBet?: any;
+  bonusBet?: any;
 }
