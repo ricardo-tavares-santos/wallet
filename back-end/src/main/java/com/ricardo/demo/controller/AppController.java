@@ -92,7 +92,10 @@ public class AppController {
 		try {
 
 			// verify precontition
-			if (Long.parseLong(lTransactionDto.getAmount())<0) {
+			if (Long.parseLong(lTransactionDto.getAmount())<0
+					|| lTransactionDto.getTypeTransaction()==null
+					|| lTransactionDto.getTransactionId()==null
+			) {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
@@ -124,7 +127,10 @@ public class AppController {
 		try {
 
 			// verify precontition
-			if (Long.parseLong(lTransactionDto.getAmount())<0 || !logicService.isWithdrawValid(lTransactionDto)) {
+			if (Long.parseLong(lTransactionDto.getAmount())<0
+					|| lTransactionDto.getTypeTransaction()==null
+					|| lTransactionDto.getTransactionId()==null
+					|| !logicService.isWithdrawValid(lTransactionDto)) {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
@@ -157,7 +163,10 @@ public class AppController {
 		try {
 
 			// verify precontition
-			if (Long.parseLong(lTransactionDto.getAmount())<=0 || !logicService.isBetValid(lTransactionDto)) {
+			if (Long.parseLong(lTransactionDto.getAmount())<=0
+					|| lTransactionDto.getTypeTransaction()==null
+					|| lTransactionDto.getTransactionId()==null
+					|| !logicService.isBetValid(lTransactionDto)) {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
@@ -189,7 +198,9 @@ public class AppController {
 		try {
 
 			// verify precontition
-			if (Long.parseLong(lTransactionDto.getAmount())<0) {
+			if (Long.parseLong(lTransactionDto.getAmount())<0
+					|| lTransactionDto.getTypeTransaction()==null
+					|| lTransactionDto.getTransactionId()==null) {
 				return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
 			}
 
