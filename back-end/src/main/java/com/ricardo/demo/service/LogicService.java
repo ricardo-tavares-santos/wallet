@@ -83,17 +83,22 @@ public class LogicService {
 	public WalletDto createWin(TransactionDto lTransactionDto) {
 		WalletEntity lWallet = walletRepository.findByPlayerId(Long.parseLong(lTransactionDto.getPlayerId()));
 		BetEntity lBetEntity = betRepository.findByTransactionId(lTransactionDto.getTransactionId());
-		lWallet.setBonusBalance(lWallet.getBonusBalance()+getBonusWin(Long.parseLong(lTransactionDto.getAmount()), lBetEntity.getCashBet(), lBetEntity.getBonusBet()));
-		lWallet.setCashBalance(lWallet.getCashBalance()+getCashWin(Long.parseLong(lTransactionDto.getAmount()), lBetEntity.getCashBet(), lBetEntity.getBonusBet()));
+		if(lBetEntity.getBonusBet()>0) {
+			lWallet.setBonusBalance(lWallet.getBonusBalance() + getBonusWin(Long.parseLong(lTransactionDto.getAmount()), lBetEntity.getCashBet(), lBetEntity.getBonusBet()));
+		}
+		if(lBetEntity.getCashBet()>0) {
+			lWallet.setCashBalance(lWallet.getCashBalance() + getCashWin(Long.parseLong(lTransactionDto.getAmount()), lBetEntity.getCashBet(), lBetEntity.getBonusBet()));
+		}
 		walletRepository.save(lWallet);
 		return convertWalletEntityToDto(lWallet);
-	}
-	private long getCashWin(long amount, long cashBet, long bonusBet) {
-		return (amount*cashBet)/(cashBet+bonusBet);
 	}
 	private long getBonusWin(long amount, long cashBet, long bonusBet) {
 		return (amount*bonusBet)/(cashBet+bonusBet);
 	}
+	private long getCashWin(long amount, long cashBet, long bonusBet) {
+		return (amount*cashBet)/(cashBet+bonusBet);
+	}
+
 
 	// 100% bonus for any deposit greater than €100
 	public WalletDto createDeposit(TransactionDto lTransactionDto) {

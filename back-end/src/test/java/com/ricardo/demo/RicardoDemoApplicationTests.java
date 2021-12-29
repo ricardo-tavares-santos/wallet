@@ -1,5 +1,8 @@
 package com.ricardo.demo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.ricardo.demo.dto.TransactionDto;
 import com.ricardo.demo.model.PlayerEntity;
 import com.ricardo.demo.model.WalletEntity;
@@ -17,9 +20,12 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,19 +58,123 @@ class RicardoDemoApplicationTests {
 	@Autowired
 	LogicService logicService;
 
-	// -------- App test
-
 	private static String email = "application@test.com";
 	private static PlayerEntity player = new PlayerEntity("name", false, email, "password");
 
+	// -------- Integration controller test
+
 	@Test
 	@Order(1)
-	public void shoud_Insert_Player() throws Exception {
-		// if player ok
+	public void should_Controllers_Works() throws Exception {
 		playerRepository.save(player);
 		List<PlayerEntity> players = playerRepository.findByEmail(email);
+		long playerId = players.stream().findFirst().get().getId();
 		assertNotNull(players.size()>0?true:null);
+
+		String token = this.tokenProvider.createToken(player);
+		assertNotNull(token);
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		TransactionDto lTransactionSaveDto = new TransactionDto();
+		lTransactionSaveDto.setDateTransaction(new Date()+"");
+		lTransactionSaveDto.setPlayerId(playerId+"");
+
+		//  POST /deposit
+		lTransactionSaveDto.setTransactionId(UUID.randomUUID().toString());
+		lTransactionSaveDto.setTypeTransaction(TransactionType.DEPOSIT.name());
+		lTransactionSaveDto.setAmount("10");
+		String requestDepositJson=ow.writeValueAsString(lTransactionSaveDto);
+		mvc.perform(MockMvcRequestBuilders
+						.post("/deposit")
+						.header("Authorization", "Bearer " + token)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestDepositJson))
+				.andExpect(status().isCreated())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.cashBalance").value("10"));
+
+		//  POST /bet
+		lTransactionSaveDto.setTransactionId(UUID.randomUUID().toString());
+		lTransactionSaveDto.setTypeTransaction(TransactionType.BET.name());
+		lTransactionSaveDto.setAmount("10");
+		lTransactionSaveDto.setBonusBet("0");
+		lTransactionSaveDto.setCashBet("10");
+		String requestBetJson=ow.writeValueAsString(lTransactionSaveDto);
+		mvc.perform(MockMvcRequestBuilders
+						.post("/bet")
+						.header("Authorization", "Bearer " + token)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestBetJson))
+				.andExpect(status().isCreated())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.cashBalance").value("0"));
+		lTransactionSaveDto.setBonusBet(null);
+		lTransactionSaveDto.setCashBet(null);
+
+		//  POST /win
+		lTransactionSaveDto.setTypeTransaction(TransactionType.WIN.name());
+		lTransactionSaveDto.setAmount("20");
+		String requestWinJson=ow.writeValueAsString(lTransactionSaveDto);
+		mvc.perform(MockMvcRequestBuilders
+						.post("/win")
+						.header("Authorization", "Bearer " + token)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestWinJson))
+				.andExpect(status().isCreated())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.cashBalance").value("20"));
+
+		//  GET /balance/{playerId}
+		mvc.perform(MockMvcRequestBuilders.get("/balance/"+playerId)
+					.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.cashBalance").value("20"));
+
+		//  POST /withdraw ok
+		lTransactionSaveDto.setTransactionId(UUID.randomUUID().toString());
+		lTransactionSaveDto.setTypeTransaction(TransactionType.WITHDRAW.name());
+		lTransactionSaveDto.setAmount("20");
+		String requestWithdrawOKJson=ow.writeValueAsString(lTransactionSaveDto);
+		mvc.perform(MockMvcRequestBuilders
+						.post("/withdraw")
+						.header("Authorization", "Bearer " + token)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestWithdrawOKJson))
+				.andExpect(status().isCreated())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.cashBalance").value("0"));
+
+		//  POST /withdraw idempotent
+		lTransactionSaveDto.setTypeTransaction(TransactionType.WITHDRAW.name());
+		lTransactionSaveDto.setAmount("20");
+		String requestWithdrawIdempotentJson=ow.writeValueAsString(lTransactionSaveDto);
+		mvc.perform(MockMvcRequestBuilders
+						.post("/withdraw")
+						.header("Authorization", "Bearer " + token)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestWithdrawIdempotentJson))
+				.andExpect(status().isCreated())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.cashBalance").value("0"));
+
+		//  POST /withdraw conflict
+		lTransactionSaveDto.setTypeTransaction(TransactionType.WITHDRAW.name());
+		lTransactionSaveDto.setAmount("1000");
+		String requestWithdrawConflictJson=ow.writeValueAsString(lTransactionSaveDto);
+		mvc.perform(MockMvcRequestBuilders
+						.post("/withdraw")
+						.header("Authorization", "Bearer " + token)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestWithdrawConflictJson))
+				.andExpect(status().isConflict());
+
+
+		//  GET /transactions/{playerId}
+		mvc.perform(MockMvcRequestBuilders.get("/transactions/"+playerId)
+						.header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.data.length()").value(4));
 	}
+
+	// -------- Logic test
+
 	@Test
 	@Order(2)
 	public void shoud_Create_Deposit_Simple() throws Exception {
